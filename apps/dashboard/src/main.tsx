@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client';
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { ArrowRight, Bell, BellRing, Check, CheckCheck, ChevronRight, Circle, CircleCheck, Clock3, Globe2, LoaderCircle, LockKeyhole, Monitor, RefreshCw, Send, ShieldCheck, Unplug, X } from 'lucide-react';
 import { DEFAULT_NOTIFICATION } from '../../../packages/core/src/index.js';
 import { usePush } from './use-push';
 import './styles.css';
+const AdminPage = lazy(() => import('./admin').then(module => ({ default: module.AdminPage })));
 
 function App() {
   const push = usePush();
@@ -24,8 +25,8 @@ function App() {
   return <>
     <header className="site-header">
       <a className="brand" href="/" aria-label="Web Push home"><span className="brand-mark"><Bell size={22} strokeWidth={1.8}/></span><span>Web Push<span className="brand-subtitle">Notification service</span></span></a>
-      <nav aria-label="Main navigation"><a className="nav-active" href="#connection">Browser connection</a><a href="#delivery-guide">How it works</a></nav>
-      <span className="environment"><span/>Local development</span>
+      <nav aria-label="Main navigation"><a className="nav-active" href="#connection">Browser connection</a><a href="#delivery-guide">How it works</a><a href="/admin">Admin access</a></nav>
+      <span className="environment"><span/>{push.config?.mode === 'azure' ? 'Cloud connection' : 'Local development'}</span>
     </header>
 
     <main>
@@ -102,4 +103,5 @@ function App() {
   </>;
 }
 
-createRoot(document.getElementById('root')!).render(<App/>);
+createRoot(document.getElementById('root')!).render(location.pathname === '/admin'
+  ? <Suspense fallback={<main><p role="status">Loading administrator access…</p></main>}><AdminPage/></Suspense> : <App/>);

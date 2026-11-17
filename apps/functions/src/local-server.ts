@@ -3,9 +3,11 @@ import { createApplication } from './application.js';
 import { FileSubscriptionStore } from '../../../packages/adapters/src/file-store.js';
 import { WebPushSender } from '../../../packages/adapters/src/web-push-sender.js';
 import { loadEnvironment } from '../../../tools/environment.js';
+import { queuedLocal } from './queued-local.js';
 
 const config = loadEnvironment();
-const handle = createApplication({
+const queued = process.env.LOCAL_PIPELINE_MODE === 'queued' ? queuedLocal(config) : undefined;
+const handle = queued?.handle ?? createApplication({
   ...config,
   publicKey: config.vapid.publicKey,
   store: new FileSubscriptionStore(config.dataDirectory),
@@ -46,4 +48,4 @@ server.requestTimeout = 15_000;
 server.headersTimeout = 10_000;
 server.listen(config.port, '127.0.0.1', () => console.log(`Local push API: http://127.0.0.1:${config.port}`));
 server.on('error', error => { console.error(`Could not start local API: ${error.message}`); process.exitCode = 1; });
-for (const signal of ['SIGINT', 'SIGTERM'] as const) process.on(signal, () => server.close());
+for (const signal of ['SIGINT', 'SIGTERM'] as const) process.on(signal, () => { queued?.stop(); server.close(); });

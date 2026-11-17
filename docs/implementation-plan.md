@@ -4,6 +4,8 @@ Build a working Azure serverless notification service with a management dashboar
 
 The local Foundation is implemented, including a verified browser Web Push round trip. See [Foundation verification](foundation.md) for evidence and the cloud-readiness checks still needed before milestone 2. The dates below are proposed targets beginning 18 November 2026 and follow the supplied outline's development, testing, review, and submission windows. They assume focused daily development. They are planning targets, not measured delivery estimates.
 
+Phase 2 now has a local implementation of durable queued delivery and administrator token validation. Its live Azure smoke deployment is deferred by the user's strict INR 100 budget decision. See [Phase 2 status and verification](phase-2.md); do not treat local adapter checks as cloud validation.
+
 ## Scope and completion criteria
 
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.

@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "dependencies": { "web-push": "^3.6.7" }
+  "dependencies": {
+    "@azure/cosmos": "^4.7.0",
+    "@azure/identity": "^4.13.0",
+    "@azure/service-bus": "^7.9.0",
+    "jose": "^6.1.0",
+    "web-push": "^3.6.7"
+  }
 }

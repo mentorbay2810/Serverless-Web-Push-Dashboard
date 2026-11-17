@@ -1,0 +1,6 @@
+{
+  "cloudDeploymentEnabled": false,
+  "monthlyBudgetINR": 100,
+  "strictSpendingLimitRequired": true,
+  "reason": "User requires a strict INR 100 maximum. Azure billing-triggered shutdown cannot guarantee this cap; keep cloud deployment off."
+}
