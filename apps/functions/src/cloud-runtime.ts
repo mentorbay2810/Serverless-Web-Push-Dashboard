@@ -20,6 +20,8 @@ export function createCloudRuntime() {
   const subscriptions = new DurableSubscriptionStore(database, siteId);
   const queue = new ServiceBusQueuePublisher(required('SERVICEBUS_NAMESPACE'), required('CAMPAIGN_QUEUE'), required('DELIVERY_QUEUE'), credential);
   const pipeline = new DeliveryPipeline({ database, subscriptions, queue, siteId,
+    eventSecret: required('VAPID_PRIVATE_KEY'),
+    eventBaseUrl: process.env.PUBLIC_API_ORIGIN ?? `https://${required('WEBSITE_HOSTNAME')}`,
     dailyAttemptLimit: bounded('DAILY_ATTEMPT_LIMIT', 1000, 1000),
     sender: new WebPushSender({ subject: required('VAPID_SUBJECT'), publicKey: required('VAPID_PUBLIC_KEY'), privateKey: required('VAPID_PRIVATE_KEY') }),
   });

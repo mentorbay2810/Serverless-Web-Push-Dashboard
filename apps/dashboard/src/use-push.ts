@@ -72,7 +72,9 @@ export function usePush() {
     }
     setPermission(Notification.permission);
     if (Notification.permission === 'denied') { setCredential(readCredential()); setConnection('blocked'); return; }
-    const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' });
+    const workerUrl = new URL('/sw.js', location.origin);
+    workerUrl.searchParams.set('apiOrigin', new URL(apiUrl('/api/config'), location.origin).origin);
+    const registration = await navigator.serviceWorker.register(workerUrl.href, { scope: '/', updateViaCache: 'none' });
     const ready = await Promise.race([
       navigator.serviceWorker.ready,
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Background delivery did not become ready. Reload this page and retry.')), 10_000)),

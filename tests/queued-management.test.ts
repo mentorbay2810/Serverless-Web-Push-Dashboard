@@ -29,4 +29,24 @@ test('local management stays behind host, origin, and CLI-token checks; public a
   assert.equal((await request('/api/local/manage/campaigns', 'private-cli-token')).status, 200);
   const config = await (await request('/api/config')).text();
   assert.ok(!config.includes(keys.privateKey)); assert.ok(!config.includes('private-cli-token'));
+  assert.equal(JSON.parse(config).localAdmin, true);
+  const issueRequest = (token?: string) => runtime.handle(new Request('http://127.0.0.1:8787/api/local/session', {
+    method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }));
+  assert.equal((await issueRequest()).status, 401);
+  const issued = await issueRequest('private-cli-token'); assert.equal(issued.status, 201);
+  const link = await issued.json() as { url: string }; const code = new URLSearchParams(new URL(link.url).hash.slice(1)).get('pair');
+  const exchange = (origin = 'http://localhost:5173') => runtime.handle(new Request('http://127.0.0.1:8787/api/local/session/exchange', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: JSON.stringify({ code }),
+  }));
+  assert.equal((await exchange('https://foreign.example')).status, 403);
+  const connected = await exchange(); assert.equal(connected.status, 200);
+  const session = await connected.json() as { token: string };
+  assert.equal((await exchange()).status, 401);
+  assert.equal((await request('/api/local/manage/campaigns', session.token)).status, 200);
+  assert.equal((await request('/api/admin/campaigns', session.token)).status, 401);
+  assert.equal((await issueRequest(session.token)).status, 401);
+  assert.equal((await request('/api/local/subscriptions', session.token)).status, 401);
+  assert.equal((await runtime.handle(new Request('http://127.0.0.1:8787/api/local/session/logout', { method: 'POST', headers: { Authorization: `Bearer ${session.token}` } }))).status, 200);
+  assert.equal((await request('/api/local/manage/campaigns', session.token)).status, 401);
 });

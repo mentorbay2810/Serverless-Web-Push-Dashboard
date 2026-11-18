@@ -8,24 +8,27 @@ import { DeliveryPipeline } from '../../../packages/core/src/pipeline.js';
 import { AppError, DEFAULT_NOTIFICATION, summarize } from '../../../packages/core/src/index.js';
 import { cloudApplication } from './cloud-application.js';
 import type { loadEnvironment } from '../../../tools/environment.js';
+import { LocalAdminSessions } from './local-sessions.js';
 
 export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
   const database = new FileDocumentDatabase(join(config.dataDirectory, 'phase2-documents.json'));
   const queue = new LocalQueuePublisher(new FileDocumentDatabase(join(config.dataDirectory, 'phase2-queues.json')));
   const subscriptions = new DurableSubscriptionStore(database, 'local');
-  const pipeline = new DeliveryPipeline({ database, queue, subscriptions, siteId: 'local', dailyAttemptLimit: 1000, sender: new WebPushSender(config.vapid) });
+  const pipeline = new DeliveryPipeline({ database, queue, subscriptions, siteId: 'local', dailyAttemptLimit: 1000,
+    eventSecret: config.vapid.privateKey, eventBaseUrl: config.webOrigin, sender: new WebPushSender(config.vapid) });
+  const sessions = new LocalAdminSessions();
   const digest = (value: string) => createHash('sha256').update(value).digest();
   const localAuthorized = (header: string | null) => !!header?.startsWith('Bearer ')
     && timingSafeEqual(digest(header.slice(7)), digest(config.adminToken));
   const publicApi = cloudApplication({ subscriptions, pipeline, webOrigin: config.webOrigin,
-    config: { mode: 'local', vapidPublicKey: config.vapid.publicKey, maxSubscriptions: 100 },
+    config: { mode: 'local', vapidPublicKey: config.vapid.publicKey, maxSubscriptions: 100, localAdmin: true },
     auth: { async authenticate() { throw new AppError(401, 'Entra administrator access is not configured in this local profile.'); } },
   });
   // This handler is reachable only through the host, origin, and CLI-token checks below.
   const managementApi = cloudApplication({ subscriptions, pipeline, webOrigin: config.webOrigin,
     config: { mode: 'local', vapidPublicKey: config.vapid.publicKey, maxSubscriptions: 100 },
     auth: { async authenticate(header) {
-      if (!localAuthorized(header)) throw new AppError(401, 'Local CLI authorization is required.');
+      if (!localAuthorized(header) && !sessions.authorized(header)) throw new AppError(401, 'A local administrator session is required.');
       return { objectId: 'local-cli' };
     } },
   });
@@ -45,7 +48,27 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
     if (![ `localhost:${config.port}`, `127.0.0.1:${config.port}` ].includes(url.host)
       || (request.headers.has('origin') && request.headers.get('origin') !== config.webOrigin)) return json({ error: 'Only the configured local origin is allowed.' }, 403);
     if (!url.pathname.startsWith('/api/local/')) return publicApi(request);
-    if (!localAuthorized(request.headers.get('authorization'))) return json({ error: 'Local CLI authorization is required.' }, 401);
+    if (url.pathname === '/api/local/session/exchange' && request.method === 'POST') {
+      try {
+        if (!request.headers.get('content-type')?.startsWith('application/json')) throw new AppError(415, 'Send JSON content.');
+        const text = await request.text();
+        if (Buffer.byteLength(text) > 1024) throw new AppError(413, 'Request is too large.');
+        const input = JSON.parse(text) as { code?: unknown };
+        return json(sessions.exchange(input?.code));
+      } catch (error) { return json({ error: error instanceof AppError ? error.message : 'Invalid sign-in request.' }, error instanceof AppError ? error.status : 400); }
+    }
+    if (url.pathname === '/api/local/session/logout' && request.method === 'POST') {
+      try { sessions.revoke(request.headers.get('authorization')); return json({ status: 'signed_out' }); }
+      catch { return json({ error: 'Local administrator session is unavailable.' }, 401); }
+    }
+    const cli = localAuthorized(request.headers.get('authorization'));
+    if (!cli && !(url.pathname.startsWith('/api/local/manage/') && sessions.authorized(request.headers.get('authorization')))) return json({ error: 'Local CLI authorization is required.' }, 401);
+    if (url.pathname === '/api/local/session' && request.method === 'POST' && cli) {
+      try {
+        const issued = sessions.issue();
+        return json({ url: `${config.webOrigin}/admin#pair=${issued.code}`, expiresAt: issued.expiresAt }, 201);
+      } catch (error) { return json({ error: error instanceof AppError ? error.message : 'Could not create sign-in link.' }, error instanceof AppError ? error.status : 503); }
+    }
     if (url.pathname.startsWith('/api/local/manage/')) {
       url.pathname = url.pathname.replace('/api/local/manage/', '/api/admin/');
       return managementApi(new Request(url, request));

@@ -8,6 +8,8 @@ Phase 2 now has a local implementation of durable queued delivery and administra
 
 Phase 3 is implemented locally: campaign CRUD, tag targeting, frozen audiences, one-time UTC scheduling, paginated dispatch checkpoints, cancellation, retry delays, and final campaign states. All 51 tests and builds pass, and a scheduled campaign survived an API restart and received real provider acceptance. See [Phase 3 commands and evidence](phase-3.md). Cloud deployment remains off; the next milestone is the campaign dashboard and analytics.
 
+Phase 4 is implemented locally with the campaign dashboard, expiring browser administrator sessions, reviewed activation, separate persistent acceptance/receipt/click metrics, failure details, and durable pause controls. All 68 tests and builds pass. A live local API flow produced provider acceptance and a real browser receipt. Automated visual/UI interaction checks and live Azure/Entra checks remain unverified; see [Phase 4 evidence and limits](phase-4.md). Cloud deployment remains off under the strict INR 100 ceiling.
+
 ## Scope and completion criteria
 
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.
@@ -151,4 +153,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The Foundation and the local implementations of milestones 2 and 3 are delivered. Next, implement milestone 4's campaign editor, targeting and schedule controls, persistent observation events, and analytics. Retain the strict INR 100 budget decision: cloud deployment and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.
+The Foundation and local implementations of milestones 2–4 are delivered. Next, prepare the local release candidate and complete real UI/cross-browser checks before broader validation and benchmarking. Retain the strict INR 100 budget decision: cloud deployment, deployment automation, and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.

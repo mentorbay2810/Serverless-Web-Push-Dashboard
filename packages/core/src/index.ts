@@ -14,6 +14,7 @@ export interface PushPayload extends NotificationContent {
   version: 1;
   notificationId: string;
   sentAt: string;
+  reporting?: { url: string; token: string };
 }
 
 export interface StoredSubscription {
@@ -37,6 +38,7 @@ export interface PublicConfig {
   vapidPublicKey: string;
   mode: 'local' | 'azure';
   maxSubscriptions: number;
+  localAdmin?: boolean;
   admin?: { tenantId: string; clientId: string; apiClientId: string; scope: string };
 }
 
@@ -134,4 +136,11 @@ export function summarize(record: StoredSubscription): SubscriptionSummary {
     tags: record.tags ?? [],
     ...(record.lastAcceptedAt ? { lastAcceptedAt: record.lastAcceptedAt } : {}),
   };
+}
+
+export function parseTags(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length > 10 || value.some(tag => typeof tag !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,31}$/i.test(tag))) {
+    throw new AppError(400, 'Use up to 10 tags, each containing 1–32 letters, digits, underscores, or hyphens.');
+  }
+  return [...new Set((value as string[]).map(tag => tag.toLowerCase()))].sort();
 }
