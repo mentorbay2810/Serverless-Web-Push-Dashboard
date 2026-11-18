@@ -29,5 +29,6 @@ jobs:
       - run: npm ci
       - run: npm run setup
       - run: npm run validate:local
+      - run: npm run research:smoke
       - run: npm audit --omit=dev --audit-level=high
       # No deployment, cloud identity, caches, or artifact uploads.

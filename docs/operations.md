@@ -4,6 +4,8 @@ Keep cloud deployment off under [the recorded strict INR 100 decision](../infra/
 
 For a complete local validation run, use `npm run validate:local`; results and JUnit evidence are in `.cache/validation/`. `npm run benchmark -- --audience 100 --repetitions 3 --warmup 1` starts and tears down an isolated synthetic host and mock without touching `.data`. Keep repeated timing experiments separate from application/test activity. See [Phase 6](phase-6.md) for bounds, raw trace formats and measurement limitations.
 
+For a bounded matrix and replayable analysis, run `npm run research:run` on a clean committed checkout. It saves self-contained raw copies and derived evidence in `.cache/research/<suite-uuid>/`; see [Phase 7](phase-7.md) for plotting, verification and stale research-lock handling. Keep those research artifacts separate from the private demonstration state and from cloud claims.
+
 ## Start, stop, and sign in
 
 Run `npm run setup` once, `npm run build`, then `npm start`. For source development, use `npm run dev:queued`. Open the configured frontend origin and generate a local administrator link with `npm run admin:login` in another terminal. The link lasts two minutes, the session one hour; restarting the API revokes sessions.

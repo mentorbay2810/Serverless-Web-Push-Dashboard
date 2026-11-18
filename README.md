@@ -6,7 +6,7 @@ Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, 
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.1`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
+The local candidate is `0.1.0-rc.3`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
 
 ```sh
 npm ci
@@ -91,6 +91,8 @@ The release check runs tests, builds, packaging, an isolated compiled-app HTTP f
 
 `validate:local` includes that release check and a bounded synthetic baseline smoke. It emits validation/JUnit evidence in `.cache/validation/`. For repeated local measurements, use `npm run benchmark -- --audience 100 --repetitions 3 --warmup 1`. Read [Phase 6](docs/phase-6.md) for raw traces, metric definitions and pending browser/cloud checks. These timings use memory adapters and mock HTTP acceptance; they do not establish serverless performance or cloud costs.
 
+For the recorded local experiment matrix, use `npm run research:run` from a clean committed checkout. It compares audiences 10/100/1,000, workers 1/2/4 and fresh/reused processes with five measured repetitions. Reports, verified raw evidence and CSV exports go to `.cache/research/<suite-uuid>/`. [Phase 7](docs/phase-7.md) explains replay, optional PNG/SVG figures and the limits of local timing and unmeasured costs.
+
 Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
 
 The tests cover subscription ownership, hostile endpoint rejection, persistence, registration races, expired endpoints, send limits, fallback notifications, and safe notification clicks. The API integration tests use a fake sender; a real-browser push check remains a separate verification step.
@@ -116,5 +118,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 4 dashboard, access, and analytics](docs/phase-4.md)
 - [Phase 5 local release candidate](docs/phase-5.md)
 - [Phase 6 validation and local benchmark](docs/phase-6.md)
+- [Phase 7 local experiments and analysis](docs/phase-7.md)
 - [Local operations runbook](docs/operations.md)
 - [Foundation API contract](docs/api.md)
