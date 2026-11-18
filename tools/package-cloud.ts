@@ -30,7 +30,8 @@ async function copyRuntimePackage(name: string, from: string) {
 }
 await copyRuntimePackage('@azure/functions', join(projectRoot, 'package.json'));
 await cp(join(projectRoot, 'apps/functions/host.json'), join(output, 'host.json'));
-await writeFile(join(output, 'package.json'), JSON.stringify({ name: 'webpush-azure-functions', version: '0.2.0', private: true, main: 'index.cjs', engines: { node: '24.x' } }, null, 2));
+const project = JSON.parse(await readFile(join(projectRoot, 'package.json'), 'utf8')) as { version: string };
+await writeFile(join(output, 'package.json'), JSON.stringify({ name: 'webpush-azure-functions', version: project.version, private: true, main: 'index.cjs', engines: { node: '24.x' } }, null, 2));
 execFileSync('zip', ['-qr', archive, '.'], { cwd: output });
 console.log('Packaged .cache/azure-function.zip with cloud handlers and runtime dependencies.');
 console.log('Local environment files and subscription data are excluded.');
