@@ -14,6 +14,8 @@ Phase 5 prepares `0.1.0-rc.1` as a local candidate with a built server, configur
 
 ## Scope and completion criteria
 
+Phase 8 prepares the review materials in `0.1.0-rc.4`: an evidence-based report, private Word generation, numerical consistency checks, diagrams/charts, demonstration and reviewer notes, and open observation/feedback records. [Phase 8](phase-8.md) carries the unfulfilled original objectives forward; prepared materials do not establish academic approval or final submission.
+
 Phase 7's local research tooling is implemented in `0.1.0-rc.3`: a seeded bounded scenario matrix, raw-evidence replay/verification, descriptive analysis, CSV exports and optional Matplotlib PNG/SVG figures. [Phase 7](phase-7.md) defines the protocol and limitations. Formal serverless/cold-start/cost comparison and actual browser verification remain pending under the strict cloud-off decision.
 
 Phase 6 adds automated security/failure validation, TAP/JUnit evidence, a source-bound local report and an always-on exploratory benchmark using the shared delivery core. Candidate `0.1.0-rc.2` keeps cloud deployment disabled. Real UI/cross-browser trials and the formal serverless comparison remain pending; see [Phase 6 methodology](phase-6.md).
@@ -159,4 +161,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The Foundation and local implementations of milestones 2–5, automated Phase 6 validation, and Phase 7's bounded local experiment/analysis tooling are prepared. Next, assemble review/submission material using measured local evidence and an explicit gap register. Actual UI/cross-browser trials, formal serverless/cost analysis, deployment automation and live Azure/Entra verification remain pending under the strict INR 100 decision.
+The local implementation, automated validation, bounded local study and Phase 8 review materials are prepared. Next, obtain genuine academic feedback, confirm scope and format, and address the open evidence register before final submission. Actual UI/cross-browser trials, larger audiences, formal serverless/cost analysis and live Azure/Entra verification remain pending under the strict INR 100 decision; no final approval or submission has been recorded.

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="468" height="165" preserveAspectRatio="xMinYMin meet" viewBox="0 0 468 165" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="468" height="165"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-165)" style="clip-path: url(#clip)">
+		<g transform="">
+			<path d="M 52,40 L 448,40 Z" style="stroke: rgb(0%,0%,0%); stroke-linecap: butt; stroke-width: 0.7;"/>
+			<path d="M 52,40 L 448,40 Z" style="stroke: rgb(85%,87%,89%); stroke-linecap: butt; stroke-width: 0.4;"/>
+			<text x="38.996" y="37" style="font-family: Helvetica; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,74) scale(1,-1)">0</text>
+			<path d="M 52,64 L 448,64 Z" style="stroke: rgb(85%,87%,89%); stroke-linecap: butt; stroke-width: 0.4;"/>
+			<text x="33.992" y="61" style="font-family: Helvetica; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,122) scale(1,-1)">13</text>
+			<path d="M 52,88 L 448,88 Z" style="stroke: rgb(85%,87%,89%); stroke-linecap: butt; stroke-width: 0.4;"/>
+			<text x="33.992" y="85" style="font-family: Helvetica; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,170) scale(1,-1)">27</text>
+			<path d="M 52,112 L 448,112 Z" style="stroke: rgb(85%,87%,89%); stroke-linecap: butt; stroke-width: 0.4;"/>
+			<text x="33.992" y="109" style="font-family: Helvetica; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,218) scale(1,-1)">40</text>
+			<path d="M 52,136 L 448,136 Z" style="stroke: rgb(85%,87%,89%); stroke-linecap: butt; stroke-width: 0.4;"/>
+			<text x="33.992" y="133" style="font-family: Helvetica; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,266) scale(1,-1)">54</text>
+			<circle cx="136.0" cy="116.40116235066921" r="3" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1; fill: rgb(75%,35%,18%); fill-rule: evenodd;"/>
+			<circle cx="143.0" cy="114.38031798034253" r="3" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1; fill: rgb(75%,35%,18%); fill-rule: evenodd;"/>
+			<circle cx="150.0" cy="116.77907964231404" r="3" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1; fill: rgb(75%,35%,18%); fill-rule: evenodd;"/>
+			<circle cx="157.0" cy="116.8" r="3" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1; fill: rgb(75%,35%,18%); fill-rule: evenodd;"/>
+			<circle cx="164.0" cy="114.78235586546218" r="3" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1; fill: rgb(75%,35%,18%); fill-rule: evenodd;"/>
+			<path d="M 115,116.401162 L 185,116.401162 Z" style="stroke: rgb(75%,35%,18%); stroke-linecap: butt; stroke-width: 1.4;"/>
+			<text x="108.8175" y="21" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,42) scale(1,-1)">Fresh per repetition</text>
+			<text x="139.5282" y="5" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,10) scale(1,-1)">n = 5</text>
+			<circle cx="350.0" cy="115.07815342713346" r="3" style="stroke: rgb(8%,48%,54%); stroke-linecap: butt; stroke-width: 1; fill: rgb(8%,48%,54%); fill-rule: evenodd;"/>
+			<path d="M 315,115.078153 L 385,115.078153 Z" style="stroke: rgb(8%,48%,54%); stroke-linecap: butt; stroke-width: 1.4;"/>
+			<text x="296.67175" y="21" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,42) scale(1,-1)">Once before reused trials</text>
+			<text x="339.52819999999997" y="5" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,10) scale(1,-1)">n = 1</text>
+			<text x="52" y="151" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,302) scale(1,-1)">Child readiness in ms at audience 100 and two workers</text>
+		</g>
+	</g>
+</svg>

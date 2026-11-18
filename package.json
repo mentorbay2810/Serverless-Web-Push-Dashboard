@@ -1,6 +1,6 @@
 {
   "name": "serverless-web-push-dashboard",
-  "version": "0.1.0-rc.3",
+  "version": "0.1.0-rc.4",
   "private": true,
   "type": "module",
   "workspaces": ["apps/*", "packages/*"],
@@ -28,6 +28,8 @@
     "research:smoke": "node dist/tools/research/run.js --smoke",
     "research:analyze": "node dist/tools/research/analyze.js",
     "research:plot": "python3 tools/research/plot.py",
+    "review:check": "tsx tools/review/check.ts",
+    "review:verify": "tsx tools/review/verify-inputs.ts",
     "push:list": "tsx tools/push.ts list",
     "push:send": "tsx tools/push.ts send",
     "campaigns": "tsx tools/campaigns.ts",

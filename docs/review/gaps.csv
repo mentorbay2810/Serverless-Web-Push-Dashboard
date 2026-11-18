@@ -1,0 +1,9 @@
+id,item,status,current_evidence,required_action,owner_role
+G01,Azure deployment and Entra,open,Prepared adapters and templates,Live verification or accepted scope change,Student and academic reviewers
+G02,Serverless comparison and cost,open,Local baseline only; monetary values unmeasured,Matched cloud study or accepted limitation,Student and academic reviewers
+G03,10000 and 100000 audience sizes,open,Bounded synthetic study up to 1000,Recorded larger trials or approved scope amendment,Student and academic reviewers
+G04,Browser and OS delivery,open,Historical provider and receipt notes; synthetic worker tests,Actual versioned permission display click and offline trials,Student
+G05,Dashboard interaction,open,Automated model/API checks,Real viewport and keyboard evidence,Student
+G06,Development dependencies and retention,open,Historical advisory and manual retention documented,Current full audit and operating record,Student
+G07,Literature depth and format,open,Focused primary sources; some metadata or abstract only,Confirm academic requirements and complete critical review,Student and academic reviewers
+G08,Academic approval and submission,not recorded,Review materials prepared,Genuine feedback approval declarations and acknowledgment,Student and academic reviewers
