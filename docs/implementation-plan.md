@@ -14,6 +14,8 @@ Phase 5 prepares `0.1.0-rc.1` as a local candidate with a built server, configur
 
 ## Scope and completion criteria
 
+Phase 6 adds automated security/failure validation, TAP/JUnit evidence, a source-bound local report and an always-on exploratory benchmark using the shared delivery core. Candidate `0.1.0-rc.2` keeps cloud deployment disabled. Real UI/cross-browser trials and the formal serverless comparison remain pending; see [Phase 6 methodology](phase-6.md).
+
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.
 
 A complete demonstration must show a browser subscribing, an administrator sending a campaign to a segment, the service worker displaying the notification, and the dashboard showing send outcomes. A scheduled campaign, expired subscription, transient failure, and queued duplicate must also be demonstrated.
@@ -155,4 +157,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The Foundation and local implementations of milestones 2–5 are prepared. Next, broaden functional/security and real UI/cross-browser validation, then build the controlled benchmark harness. Retain the strict INR 100 budget decision: cloud deployment, deployment automation, and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.
+The Foundation and local implementations of milestones 2–5 are prepared. Phase 6 automated validation and the bounded local baseline are implemented. Next, collect actual UI/cross-browser evidence and bounded Phase 7 local experiments using the documented methodology. Formal serverless/cost analysis, deployment automation and live Azure/Entra checks stay deferred under the strict INR 100 decision.

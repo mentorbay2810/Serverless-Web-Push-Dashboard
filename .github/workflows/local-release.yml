@@ -28,6 +28,6 @@ jobs:
           package-manager-cache: false
       - run: npm ci
       - run: npm run setup
-      - run: npm run release:check
+      - run: npm run validate:local
       - run: npm audit --omit=dev --audit-level=high
       # No deployment, cloud identity, caches, or artifact uploads.
