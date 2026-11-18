@@ -19,7 +19,7 @@
     "dev:web": "npm run dev --workspace @webpush/dashboard",
     "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p apps/dashboard/tsconfig.json --noEmit",
     "build": "npm run typecheck && tsc -p tsconfig.server.json && npm run build --workspace @webpush/dashboard",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test --test-reporter=tap tests/*.test.ts",
     "push:list": "tsx tools/push.ts list",
     "push:send": "tsx tools/push.ts send",
     "campaigns": "tsx tools/campaigns.ts",
