@@ -1,4 +1,4 @@
-import type { Document, DocumentDatabase, Write } from '../../core/src/durable.js';
+import { documentPage, type Document, type DocumentDatabase, type Write } from '../../core/src/durable.js';
 
 /** Deterministic local/test adapter; cloud correctness is separately smoke-tested. */
 export class MemoryDocumentDatabase implements DocumentDatabase {
@@ -20,9 +20,6 @@ export class MemoryDocumentDatabase implements DocumentDatabase {
     return true;
   }
   async page<T extends Document>(kind: string, limit: number, cursor?: string, states?: string[]) {
-    const records = [...this.records.values()].filter(record => record.kind === kind && (!states || states.includes((record as Document & { state: string }).state)));
-    const offset = Number(cursor ?? 0);
-    const items = records.slice(offset, offset + limit);
-    return { items: structuredClone(items) as T[], ...(offset + limit < records.length ? { cursor: String(offset + limit) } : {}) };
+    return structuredClone(documentPage<T>([...this.records.values()], kind, limit, cursor, states));
   }
 }

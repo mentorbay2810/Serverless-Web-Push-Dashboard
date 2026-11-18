@@ -6,6 +6,8 @@ The local Foundation is implemented, including a verified browser Web Push round
 
 Phase 2 now has a local implementation of durable queued delivery and administrator token validation. Its live Azure smoke deployment is deferred by the user's strict INR 100 budget decision. See [Phase 2 status and verification](phase-2.md); do not treat local adapter checks as cloud validation.
 
+Phase 3 is implemented locally: campaign CRUD, tag targeting, frozen audiences, one-time UTC scheduling, paginated dispatch checkpoints, cancellation, retry delays, and final campaign states. All 51 tests and builds pass, and a scheduled campaign survived an API restart and received real provider acceptance. See [Phase 3 commands and evidence](phase-3.md). Cloud deployment remains off; the next milestone is the campaign dashboard and analytics.
+
 ## Scope and completion criteria
 
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.
@@ -149,4 +151,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The first implementation task is now delivered locally: workspace, configuration templates, shared contracts, subscriber page, service worker, and test-send command. The browser subscribed and the service worker successfully created a real incoming notification. Next, complete the remaining Azure preflight checks and implement milestone 2's durable cloud backend and administrator access.
+The Foundation and the local implementations of milestones 2 and 3 are delivered. Next, implement milestone 4's campaign editor, targeting and schedule controls, persistent observation events, and analytics. Retain the strict INR 100 budget decision: cloud deployment and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.

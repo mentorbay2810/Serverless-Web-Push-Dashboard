@@ -1,7 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { Document, DocumentDatabase, Write } from '../../core/src/durable.js';
+import { documentPage, type Document, type DocumentDatabase, type Write } from '../../core/src/durable.js';
 
 /** Single-process durable local adapter. All access must go through this process. */
 export class FileDocumentDatabase implements DocumentDatabase {
@@ -42,9 +42,6 @@ export class FileDocumentDatabase implements DocumentDatabase {
   }
   async page<T extends Document>(kind: string, limit: number, cursor?: string, states?: string[]) {
     await this.pending;
-    const records = (await this.records()).filter(row => row.kind === kind && (!states || states.includes((row as Document & { state: string }).state)));
-    const offset = Number(cursor ?? 0);
-    if (!Number.isSafeInteger(offset) || offset < 0) throw new Error('Invalid local page cursor.');
-    return { items: records.slice(offset, offset + limit) as T[], ...(offset + limit < records.length ? { cursor: String(offset + limit) } : {}) };
+    return documentPage<T>(await this.records(), kind, limit, cursor, states);
   }
 }

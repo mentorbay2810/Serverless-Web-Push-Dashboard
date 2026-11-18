@@ -1,0 +1,12 @@
+{
+  "name": "Project update",
+  "content": {
+    "title": "A new project update",
+    "body": "Your scheduled Web Push campaign is ready.",
+    "url": "/#delivery-guide"
+  },
+  "audience": {
+    "type": "tags",
+    "tags": ["demo"]
+  }
+}

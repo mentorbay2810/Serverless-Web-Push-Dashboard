@@ -16,6 +16,7 @@
     "test": "tsx --test tests/*.test.ts",
     "push:list": "tsx tools/push.ts list",
     "push:send": "tsx tools/push.ts send",
+    "campaigns": "tsx tools/campaigns.ts",
     "check:cloud": "tsx tools/check-cloud.ts",
     "package:cloud": "tsx tools/package-cloud.ts"
   },

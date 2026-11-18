@@ -1,6 +1,6 @@
 # Serverless Web Push Dashboard
 
-A near-zero-cost Azure web push project for the dissertation. The Foundation provides browser subscription and direct test sends. Phase 2 adds persistent queued delivery, recovery, Azure storage and messaging adapters, and Microsoft Entra authorization.
+A near-zero-cost Azure web push project for the dissertation. The Foundation provides browser subscription and direct test sends. Phase 2 adds persistent queued delivery, recovery, Azure storage and messaging adapters, and Microsoft Entra authorization. Phase 3 adds campaign drafts, tags, schedules, cancellation, and resumable fan-out through the API and local management CLI.
 
 Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, and Azure billing-triggered shutdown cannot guarantee that custom hard cap. Local development and local push tests use no Azure resources. The decision is recorded in [infra/deployment-policy.json](infra/deployment-policy.json).
 
@@ -41,6 +41,18 @@ The sender chooses one subscription. It does not broadcast. In the Foundation pr
 
 Stop both local services with `Ctrl+C` in the development terminal.
 
+## Manage campaigns locally
+
+With `npm run dev:queued` running, use `npm run campaigns -- subscribers` to find a browser, assign its `demo` tag, and preview the sample campaign:
+
+```sh
+npm run campaigns -- tags --id <subscriber-id> --tags demo
+npm run campaigns -- preview --file examples/campaign.json
+npm run campaigns -- create --file examples/campaign.json --key project-update-draft-001
+```
+
+Creating a draft sends nothing. Use the returned ID with `send`, `schedule`, `get`, or `cancel`. Read [the campaign workflow and commands](docs/phase-3.md) for scheduling, editing, deletion, targeting rules, and limits. The campaign editor and analytics screens remain the next milestone.
+
 ## Local configuration
 
 `npm run setup` generates a VAPID pair and a local CLI token in the ignored root `.env`. It preserves existing keys when run again and never prints private values. The template is [.env.example](.env.example).
@@ -70,8 +82,8 @@ The tests cover subscription ownership, hostile endpoint rejection, persistence,
 
 - Up to 100 registered browsers.
 - Foundation profile: five send attempts per minute, shared by the page and CLI.
-- Queued profile: 100 campaign submissions and 1,000 delivery attempt reservations per UTC day; each delivery has at most five attempts.
-- One browser per test; a five-minute provider TTL and a ten-second network inactivity timeout.
+- Queued profile: 100 new campaigns (including drafts and tests) and 1,000 delivery attempt reservations per UTC day; each delivery has at most five attempts.
+- Browser tests target one browser. Managed campaigns support up to 100 frozen recipients, expanded in pages of 25. Provider TTL is five minutes with a ten-second network inactivity timeout.
 - Local file stores owned by one API process. The Azure Cosmos DB and Service Bus adapters are implemented; live Azure verification is deferred while cloud deployment is disabled.
 - No Azure resources or paid hosting are needed to run this Foundation.
 
@@ -83,4 +95,5 @@ The frontend's activity feed records actual events observed in the current page 
 - [Implementation plan](docs/implementation-plan.md)
 - [Foundation setup and verification](docs/foundation.md)
 - [Phase 2 implementation and verification](docs/phase-2.md)
+- [Phase 3 campaigns and reliable sending](docs/phase-3.md)
 - [Foundation API contract](docs/api.md)
