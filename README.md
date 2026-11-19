@@ -1,8 +1,8 @@
 # Serverless Web Push Dashboard
 
-A near-zero-cost Azure web push project for the dissertation. It includes browser subscription, persistent queued delivery, campaign drafts, tag targeting, scheduling, cancellation, recovery, and an administrator dashboard with separate acceptance, receipt, and click metrics. Azure adapters and Microsoft Entra authorization are prepared for future cloud verification.
+A near-zero-cost Azure web push project for the dissertation. It includes browser subscription, persistent queued delivery, campaign drafts, tag targeting, scheduling, cancellation, recovery, and an administrator dashboard with separate acceptance, receipt, and click metrics. A temporary Azure test verified browser notification delivery; hosted Microsoft Entra administrator browser sign-in remains a separate verification step.
 
-Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, and Azure billing-triggered shutdown cannot guarantee that custom hard cap. Local development and local push tests use no Azure resources. The decision is recorded in [infra/deployment-policy.json](infra/deployment-policy.json).
+Ongoing cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, and Azure billing-triggered shutdown cannot guarantee that custom hard cap. A separately approved one-time Azure trial on 19 November 2026 completed and its temporary application resources were removed. Local development and local push tests use no Azure resources. The default decision is recorded in [infra/deployment-policy.json](infra/deployment-policy.json).
 
 ## Start locally
 
@@ -95,7 +95,7 @@ For the recorded local experiment matrix, use `npm run research:run` from a clea
 
 [Phase 8](docs/phase-8.md) prepares the academic review package. Read [the review report and evidence index](docs/review/README.md), then use `npm run review:check` for public consistency checks. The editable Word draft is generated locally from the private outline; cloud/browser/scale gaps and academic approval remain explicit.
 
-A separately approved [temporary Azure smoke test](docs/cloud-smoke.md) is being prepared with an INR 100 email alert and explicit cleanup. This does not enable ongoing deployment or establish a guaranteed spending cap. Historical local studies and review archives retain their original source identities.
+A separately approved [temporary Azure smoke test](docs/cloud-smoke.md) recorded two accepted notifications, two browser receipts, one click report, and operator-confirmed OS display. All temporary application resources are removed; the INR 100 email alert remains for delayed billing. This does not enable ongoing deployment or establish a guaranteed spending cap. Historical local studies and review archives retain their original source identities.
 
 Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
 
