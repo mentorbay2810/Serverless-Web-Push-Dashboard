@@ -8,6 +8,7 @@
   "scripts": {
     "setup": "tsx tools/setup.ts",
     "dev": "tsx tools/dev.ts",
+    "dev:queued": "tsx tools/dev.ts --queued",
     "dev:api": "tsx watch apps/functions/src/local-server.ts",
     "dev:web": "npm run dev --workspace @webpush/dashboard",
     "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p apps/dashboard/tsconfig.json --noEmit",
@@ -15,9 +16,11 @@
     "test": "tsx --test tests/*.test.ts",
     "push:list": "tsx tools/push.ts list",
     "push:send": "tsx tools/push.ts send",
-    "check:cloud": "tsx tools/check-cloud.ts"
+    "check:cloud": "tsx tools/check-cloud.ts",
+    "package:cloud": "tsx tools/package-cloud.ts"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "@types/node": "^22.19.0",
     "@types/web-push": "^3.6.4",
     "tsx": "^4.20.0",

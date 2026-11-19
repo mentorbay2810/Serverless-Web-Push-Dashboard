@@ -3,9 +3,10 @@ import { loadEnvironment, projectRoot } from './environment.js';
 
 try {
   const environment = loadEnvironment();
+  const processEnvironment = { ...process.env, ...(process.argv.includes('--queued') ? { LOCAL_PIPELINE_MODE: 'queued' } : {}) };
   const children = [
     spawn(process.execPath, ['--import', 'tsx', '--watch', 'apps/functions/src/local-server.ts'], {
-      cwd: projectRoot, stdio: 'inherit', env: process.env, detached: process.platform !== 'win32',
+      cwd: projectRoot, stdio: 'inherit', env: processEnvironment, detached: process.platform !== 'win32',
     }),
     spawn('npm', ['run', 'dev:web'], {
       cwd: projectRoot, stdio: 'inherit', env: { ...process.env, WEBPUSH_API_PORT: String(environment.port) }, detached: process.platform !== 'win32',

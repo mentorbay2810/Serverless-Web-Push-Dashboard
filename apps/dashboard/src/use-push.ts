@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { NotificationContent, PublicConfig, SubscriptionSummary } from '../../../packages/core/src/index.js';
+import { apiUrl } from './api';
 
 interface Credential { id: string; token: string }
 class ApiError extends Error {
@@ -24,7 +25,7 @@ function serverKey(value: string): Uint8Array<ArrayBuffer> {
 }
 
 async function api<T>(path: string, options: { credential?: Credential; body?: unknown; method?: string } = {}): Promise<T> {
-  const response = await fetch(path, {
+  const response = await fetch(apiUrl(path), {
     method: options.method ?? (options.body ? 'POST' : 'GET'),
     headers: {
       ...(options.credential ? { Authorization: `Bearer ${options.credential.token}` } : {}),
@@ -180,10 +181,12 @@ export function usePush() {
     if (!credential || busy) return;
     setBusy(true); setError(''); setNotice('');
     try {
-      const result = await api<{ notificationId: string }>(`/api/subscriptions/${credential.id}/test`, { credential, body: content });
+      const result = await api<{ notificationId: string; status: 'queued' | 'accepted' }>(`/api/subscriptions/${credential.id}/test`, { credential, body: content });
       setNotice(receivedIds.current.has(result.notificationId) ? 'Notification received by this browser.'
-        : 'The push service accepted your test. Watch for a notification on this device.');
-      log('Test accepted by push service', 'The encrypted test message was accepted by the browser’s push service.');
+        : result.status === 'queued' ? 'Your test is queued for delivery. Watch for a notification on this device.'
+          : 'The push service accepted your test. Watch for a notification on this device.');
+      log(result.status === 'queued' ? 'Test queued' : 'Test accepted by push service', result.status === 'queued'
+        ? 'The notification is queued for delivery to this browser.' : 'The encrypted test message was accepted by the browser’s push service.');
     } catch (cause) {
       if (cause instanceof ApiError && [404, 410].includes(cause.status)) {
         localStorage.removeItem(storageKey); setCredential(null); setSummary(null); setConnection('reconnect');

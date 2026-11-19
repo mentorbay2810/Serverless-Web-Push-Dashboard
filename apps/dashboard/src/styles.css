@@ -125,6 +125,17 @@ input:hover, textarea:hover { border-color: #c0cfc5; }
 footer { border-top: 1px solid #e7ece8; padding: 19px 0 24px; display: flex; justify-content: space-between; color: #a0aaa3; gap: 16px; font-size: 9px; }
 footer span:first-child { display: flex; align-items: center; gap: 7px; }
 .spin { animation: spin 1s linear infinite; }
+.admin-main { max-width: 850px; }
+.admin-panel { padding: 28px; margin-bottom: 36px; }
+.admin-panel > p { color: #67746d; font-size: 13px; line-height: 1.8; margin: 15px 0 22px; }
+.admin-back { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #5a7366; margin-left: auto; }
+.admin-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.admin-toolbar h2 { margin-right: auto; }
+.subscriber-list { margin-top: 20px; }
+.subscriber-list label { display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #eef1ef; padding: 12px 0; font-size: 13px; }
+.subscriber-list input { width: 18px; height: 18px; }
+.subscriber-list small { display: block; font-size: 11px; color: #87928b; margin-top: 5px; }
+@media (max-width: 700px) { .site-header nav { gap: 16px; flex-wrap: wrap; height: auto; min-height: 42px; } .site-header nav a { min-height: 42px; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } * { transition: none !important; } }
 @media (min-width: 1500px) { main { padding-top: 36px; } .page-heading { margin-top: 45px; } }

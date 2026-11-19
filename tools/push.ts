@@ -42,8 +42,11 @@ async function main() {
     body: values.body ?? DEFAULT_NOTIFICATION.body,
     url: values.url ?? '/',
   });
-  console.log(`Push service accepted notification ${result.notificationId}.`);
-  console.log('Check the connected device for display. Provider acceptance is separate from browser receipt.');
+  if (result.status === 'queued') console.log(`Queued campaign ${result.campaignId}. Watch the connected device for delivery.`);
+  else {
+    console.log(`Push service accepted notification ${result.notificationId}.`);
+    console.log('Check the connected device for display. Provider acceptance is separate from browser receipt.');
+  }
 }
 
 main().catch(error => {

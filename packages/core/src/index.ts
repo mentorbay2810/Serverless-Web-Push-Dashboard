@@ -33,8 +33,9 @@ export interface SubscriptionSummary {
 
 export interface PublicConfig {
   vapidPublicKey: string;
-  mode: 'local';
+  mode: 'local' | 'azure';
   maxSubscriptions: number;
+  admin?: { tenantId: string; clientId: string; apiClientId: string; scope: string };
 }
 
 export interface PushSender {

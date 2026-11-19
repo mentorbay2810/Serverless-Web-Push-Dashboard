@@ -6,6 +6,8 @@ The dashboard manages subscribers, segments, campaigns, schedules, and analytics
 
 The [implementation plan](implementation-plan.md) defines the milestones, target dates, build order, validation, and cost controls.
 
+The current deployment decision is **local only**: the user requires a strict INR 100 monthly maximum and chose to keep cloud deployment off because Azure budgets cannot enforce that custom hard cap. Azure components below remain prepared architecture rather than deployed resources. See [Phase 2 status](phase-2.md) and the [deployment policy](../infra/deployment-policy.json).
+
 ```mermaid
 flowchart TB
     VISITOR["Visitor website<br/>Permission and push subscription"]
