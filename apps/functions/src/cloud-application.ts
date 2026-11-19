@@ -1,8 +1,7 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { AppError, parseNotification, parseSubscription, summarize, type PublicConfig } from '../../../packages/core/src/index.js';
-import type { Campaign, Delivery, DurableSubscriptionStore, SubscriptionDocument } from '../../../packages/core/src/durable.js';
+import type { Campaign, DurableSubscriptionStore, SubscriptionDocument } from '../../../packages/core/src/durable.js';
 import { DeliveryPipeline, subscriptionId } from '../../../packages/core/src/pipeline.js';
-import { deliveryId } from '../../../packages/core/src/campaigns.js';
 import type { AdminAuthenticator } from '../../../packages/adapters/src/entra.js';
 
 export interface CloudApplicationOptions {
@@ -57,6 +56,10 @@ export function cloudApplication(options: CloudApplicationOptions) {
       const path = new URL(request.url).pathname.replace(/\/$/, '');
       if (path === '/api/health' && request.method === 'GET') return json({ status: 'ok', mode: options.config.mode }, 200, headers);
       if (path === '/api/config' && request.method === 'GET') return json(options.config, 200, headers);
+      const eventMatch = /^\/api\/deliveries\/([a-f0-9]{64})\/events$/.exec(path);
+      if (eventMatch?.[1] && request.method === 'POST') {
+        return json(await options.pipeline.reports.record(eventMatch[1], request.headers.get('authorization'), await input(request)), 200, headers);
+      }
       if (path === '/api/subscriptions' && request.method === 'POST') {
         const data = await input(request);
         const subscription = parseSubscription(data.subscription);
@@ -69,6 +72,12 @@ export function cloudApplication(options: CloudApplicationOptions) {
         // Validate the signed API access token before reading data or publishing work.
         const admin = await options.auth.authenticate(request.headers.get('authorization'));
         if (path === '/api/admin/me' && request.method === 'GET') return json({ role: 'administrator' }, 200, headers);
+        if (path === '/api/admin/operations' && ['GET', 'PATCH'].includes(request.method)) {
+          const record = request.method === 'GET' ? await options.pipeline.controls.get()
+            : await options.pipeline.controls.set(await input(request), version(request));
+          headers.set('ETag', JSON.stringify(record._etag));
+          return json({ dispatchPaused: record.dispatchPaused, sendingPaused: record.sendingPaused, updatedAt: record.updatedAt }, 200, headers);
+        }
         if (path === '/api/admin/subscriptions' && request.method === 'GET') {
           const url = new URL(request.url);
           const cursor = url.searchParams.get('cursor') ?? undefined;
@@ -121,15 +130,8 @@ export function cloudApplication(options: CloudApplicationOptions) {
         if (campaignMatch?.[1] && request.method === 'GET') {
           if (campaignMatch[2]) throw new AppError(404, 'Endpoint not found.');
           const campaign = await options.pipeline.campaigns.get(campaignMatch[1]);
-          // The demo has at most 100 frozen recipients, so outcome reads remain bounded.
-          const deliveries = await Promise.all(campaign.subscriptionIds.map(id => options.subscriptions.database.read<Delivery>(deliveryId(campaign.id, id))));
-          const counts: Record<string, number> = {};
-          for (const delivery of deliveries) {
-            const state = delivery?.state ?? (campaign.state === 'cancelled' ? 'cancelled' : 'not_dispatched');
-            counts[state] = (counts[state] ?? 0) + 1;
-          }
           headers.set('ETag', JSON.stringify(campaign._etag));
-          return json({ ...campaignSummary(campaign), counts }, 200, headers);
+          return json({ ...campaignSummary(campaign), ...await options.pipeline.reports.campaign(campaign) }, 200, headers);
         }
         if (campaignMatch?.[1]) {
           const id = campaignMatch[1];
@@ -142,15 +144,17 @@ export function cloudApplication(options: CloudApplicationOptions) {
           } else if (request.method === 'POST') {
             if (action === 'preview') {
               const saved = await options.pipeline.campaigns.get(id);
+              headers.set('ETag', JSON.stringify(saved._etag));
               return json(saved.state === 'draft' ? { ...await options.pipeline.campaigns.preview(saved.audience), snapshot: false }
                 : { count: saved.subscriptionIds.length, subscriptionIds: saved.subscriptionIds, audience: saved.audience, snapshot: true }, 200, headers);
             }
             if (action === 'cancel') campaign = await options.pipeline.campaigns.cancel(id);
-            else if (action === 'send') campaign = await options.pipeline.activate(id, request.headers.get('idempotency-key') ?? '');
-            else if (action === 'schedule') {
-              const data = await input(request);
-              if (data.scheduledAt === undefined) throw new AppError(400, 'Provide scheduledAt with an explicit timezone.');
-              campaign = await options.pipeline.activate(id, request.headers.get('idempotency-key') ?? '', data.scheduledAt);
+            else if (action === 'send' || action === 'schedule') {
+              const data = request.headers.get('content-type')?.startsWith('application/json') ? await input(request) : {};
+              if (action === 'schedule' && data.scheduledAt === undefined) throw new AppError(400, 'Provide scheduledAt with an explicit timezone.');
+              if (data.fingerprint !== undefined && (typeof data.fingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(data.fingerprint))) throw new AppError(400, 'Invalid audience preview fingerprint.');
+              campaign = await options.pipeline.activate(id, request.headers.get('idempotency-key') ?? '', action === 'schedule' ? data.scheduledAt : undefined,
+                { fingerprint: data.fingerprint as string | undefined, version: request.headers.has('if-match') ? version(request) : undefined });
             }
           }
           if (campaign) {

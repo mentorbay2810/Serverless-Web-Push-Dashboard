@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { AppError, parseNotification, type NotificationContent } from './index.js';
+import { AppError, parseNotification, parseTags, type NotificationContent } from './index.js';
+export { parseTags } from './index.js';
 import type { Audience, Campaign, Document, DocumentDatabase, DurableSubscriptionStore, SubscriptionDocument } from './durable.js';
 
 export const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -8,12 +9,6 @@ export const terminalCampaign = (state: Campaign['state']) => ['completed', 'com
 export function idempotencyKey(key: string) {
   if (!/^[\w-]{8,80}$/.test(key)) throw new AppError(400, 'Provide an Idempotency-Key containing 8–80 letters, digits, underscores, or hyphens.');
   return key;
-}
-export function parseTags(value: unknown): string[] {
-  if (!Array.isArray(value) || value.length > 10 || value.some(tag => typeof tag !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,31}$/i.test(tag))) {
-    throw new AppError(400, 'Use up to 10 tags, each containing 1–32 letters, digits, underscores, or hyphens.');
-  }
-  return [...new Set((value as string[]).map(tag => tag.toLowerCase()))].sort();
 }
 export function parseAudience(value: unknown): Audience {
   const input = value as Record<string, unknown> | undefined;
@@ -59,7 +54,8 @@ export class CampaignManager {
     const matched = records.filter(row => audience.type === 'all'
       || (audience.type === 'selected' ? audience.subscriptionIds.includes(row.id) : audience.tags.every(tag => (row.tags ?? []).includes(tag))));
     if (audience.type === 'selected' && matched.length !== audience.subscriptionIds.length) throw new AppError(409, 'Some selected subscriptions are missing or expired. Refresh the audience.');
-    return { audience, subscriptionIds: matched.map(row => row.id).sort(), count: matched.length };
+    const subscriptionIds = matched.map(row => row.id).sort();
+    return { audience, subscriptionIds, count: matched.length, fingerprint: digest(JSON.stringify(subscriptionIds)) };
   }
   async setTags(id: string, input: unknown, version: string) {
     const tags = parseTags(input);
@@ -113,7 +109,7 @@ export class CampaignManager {
     if (campaign.state !== 'draft') throw new AppError(409, 'Only drafts can be deleted. Cancel an active campaign instead.');
     if (!await this.database.transact([{ type: 'delete', id, etag: version }])) throw new AppError(412, 'This campaign changed. Read it again.');
   }
-  async activate(id: string, key: string, scheduledAt?: unknown) {
+  async activate(id: string, key: string, scheduledAt?: unknown, expected?: { fingerprint?: string; version?: string }) {
     idempotencyKey(key);
     let timestamp: string | undefined;
     if (scheduledAt !== undefined) {
@@ -124,9 +120,11 @@ export class CampaignManager {
       const campaign = await this.get(id);
       if (campaign.activation?.key === key && campaign.activation.scheduledAt === timestamp) return campaign;
       if (campaign.state !== 'draft') throw new AppError(409, 'Only a draft can be sent or scheduled.');
+      if (expected?.version) this.version(campaign, expected.version);
       const delay = timestamp ? Date.parse(timestamp) - this.now().getTime() : 0;
       if (timestamp && (delay <= 0 || delay > 604800000)) throw new AppError(400, 'Schedule a time in the next seven days.');
       const target = await this.preview(campaign.audience);
+      if (expected?.fingerprint && target.fingerprint !== expected.fingerprint) throw new AppError(409, 'The audience changed after preview. Review the recipients again.');
       if (!target.count) throw new AppError(400, 'This audience has no active subscribers.');
       const next: Campaign = { ...campaign, subscriptionIds: target.subscriptionIds, scheduledAt: timestamp,
         activation: { key, ...(timestamp ? { scheduledAt: timestamp } : {}) }, dispatchIndex: 0,

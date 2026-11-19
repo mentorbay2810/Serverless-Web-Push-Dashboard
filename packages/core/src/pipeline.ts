@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { type PushSender } from './index.js';
 import { change, type Campaign, type Delivery, type Document, type DocumentDatabase, type QueuePublisher, type DurableSubscriptionStore, type Write } from './durable.js';
 import { CampaignManager, deliveryId, digest, terminalCampaign } from './campaigns.js';
+import { DeliveryControls } from './operations.js';
+import { DeliveryReports } from './reports.js';
 
 export const message = (id: string) => ({ version: 1 as const, id });
 export function messageId(value: unknown): string {
@@ -22,6 +24,8 @@ interface PipelineOptions {
   siteId: string;
   dailyAttemptLimit: number;
   now?: () => Date;
+  eventSecret?: string;
+  eventBaseUrl?: string;
 }
 
 /** Provider Retry-After is a minimum; very long delays fail the bounded demo job. */
@@ -36,9 +40,13 @@ export function retryDelay(value: unknown, now: Date): number | undefined {
 export class DeliveryPipeline {
   private readonly clock: () => Date;
   readonly campaigns: CampaignManager;
+  readonly controls: DeliveryControls;
+  readonly reports: DeliveryReports;
   constructor(private readonly options: PipelineOptions) {
     this.clock = options.now ?? (() => new Date());
     this.campaigns = new CampaignManager(options.database, options.subscriptions, options.siteId, this.clock);
+    this.controls = new DeliveryControls(options.database, options.siteId, this.clock);
+    this.reports = new DeliveryReports(options.database, options.siteId, this.clock, options.eventSecret, options.eventBaseUrl);
   }
 
   async submit(createdBy: string, key: string, input: unknown, ids: string[]): Promise<{ id: string; state: Campaign['state'] }> {
@@ -48,8 +56,8 @@ export class DeliveryPipeline {
     return { id: stored.id, state: stored.state };
   }
 
-  async activate(id: string, key: string, scheduledAt?: unknown) {
-    const campaign = await this.campaigns.activate(id, key, scheduledAt);
+  async activate(id: string, key: string, scheduledAt?: unknown, expected?: { fingerprint?: string; version?: string }) {
+    const campaign = await this.campaigns.activate(id, key, scheduledAt, expected);
     if (campaign.state === 'pending') await this.publishCampaign(id);
     return this.campaigns.get(id);
   }
@@ -68,12 +76,20 @@ export class DeliveryPipeline {
     for (let retry = 0; retry < 8; retry++) {
       const campaign = await this.campaigns.get(id);
       if (terminalCampaign(campaign.state) || campaign.state === 'draft') return;
+      const controls = await this.controls.get();
+      if (controls.dispatchPaused) {
+        if (campaign.state === 'queued') await this.options.database.replace({ ...campaign, state: 'pending' } as Campaign, campaign._etag!);
+        return;
+      }
       if (campaign.scheduledAt && Date.parse(campaign.scheduledAt) > this.clock().getTime()) return;
       if (campaign.state === 'sending') { await this.refreshCampaign(id); return; }
       if (campaign.dispatchLeaseUntil && Date.parse(campaign.dispatchLeaseUntil) > this.clock().getTime()) return;
       const leaseId = randomUUID();
-      if (await this.options.database.replace({ ...campaign, state: 'dispatching', dispatchLeaseId: leaseId,
-        dispatchLeaseUntil: new Date(this.clock().getTime() + 120_000).toISOString() } as Campaign, campaign._etag!)) {
+      if (await this.options.database.transact([
+        { type: 'replace', document: { ...campaign, state: 'dispatching', dispatchLeaseId: leaseId,
+          dispatchLeaseUntil: new Date(this.clock().getTime() + 120_000).toISOString() } as Campaign, etag: campaign._etag! },
+        { type: 'replace', document: controls, etag: controls._etag! },
+      ])) {
         const stored = await this.campaigns.get(id);
         if (stored.dispatchLeaseId !== leaseId || stored.state === 'cancelled') return;
         claimed = stored; break;
@@ -87,12 +103,19 @@ export class DeliveryPipeline {
     const ids = claimed.subscriptionIds.slice(start, end).map(subscriptionId => {
       const id = deliveryId(claimed!.id, subscriptionId);
       return { id, siteId: this.options.siteId, kind: 'delivery' as const, campaignId: claimed!.id,
-        subscriptionId, state: 'pending' as const, attempts: 0, updatedAt: now, nextAttemptAt: now, ttl: 604800 };
+        subscriptionId, state: 'pending' as const, attempts: 0, updatedAt: now, nextAttemptAt: now,
+        eventExpiresAt: new Date(this.clock().getTime() + 604800000).toISOString(), ttl: 604800 };
     });
     for (const delivery of ids) if (!await this.options.database.read<Delivery>(delivery.id)) writes.push({ type: 'create', document: delivery });
     const next: Campaign = { ...claimed, dispatchIndex: end, state: end < claimed.subscriptionIds.length ? 'pending' : 'sending',
       dispatchLeaseId: undefined, dispatchLeaseUntil: undefined, updatedAt: now };
     writes.push({ type: 'replace', document: next, etag: claimed._etag! });
+    const controls = await this.controls.get();
+    if (controls.dispatchPaused) {
+      await this.options.database.replace({ ...claimed, state: 'pending', dispatchLeaseId: undefined, dispatchLeaseUntil: undefined } as Campaign, claimed._etag!);
+      return;
+    }
+    writes.push({ type: 'replace', document: controls, etag: controls._etag! });
     // Page rows and the continuation checkpoint commit together. Cancellation invalidates this batch.
     if (!await this.options.database.transact(writes)) {
       if ((await this.campaigns.get(id)).state === 'cancelled') return;
@@ -128,6 +151,11 @@ export class DeliveryPipeline {
           reason: campaign?.state === 'cancelled' ? 'campaign_cancelled' : 'campaign_unavailable', updatedAt: now.toISOString() } as Delivery, delivery._etag!)) return;
         continue;
       }
+      const controls = await this.controls.get();
+      if (controls.sendingPaused) {
+        if (delivery.state === 'queued') await this.options.database.replace({ ...delivery, state: 'pending' } as Delivery, delivery._etag!);
+        return;
+      }
       if (campaign.scheduledAt && Date.parse(campaign.scheduledAt) > now.getTime()) return;
       if (new Date(delivery.nextAttemptAt) > now || (delivery.state === 'processing' && new Date(delivery.leaseUntil!) > now)) return;
       const counter = await this.options.database.read<Counter>(counterId);
@@ -142,6 +170,7 @@ export class DeliveryPipeline {
       if (await this.options.database.transact([
         { type: 'replace', document: claimed, etag: delivery._etag! },
         { type: 'replace', document: campaign, etag: campaign._etag! },
+        { type: 'replace', document: controls, etag: controls._etag! },
         { type: 'replace', document: { ...counter, count: counter.count + 1 } as Counter, etag: counter._etag },
       ])) return claimed;
     }
@@ -165,6 +194,7 @@ export class DeliveryPipeline {
     const subscription = await this.options.subscriptions.get(job.subscriptionId);
     const campaign = await this.options.database.read<Campaign>(job.campaignId);
     if (!campaign || campaign.state === 'cancelled') { await finish('cancelled', 'campaign_cancelled'); return; }
+    if ((await this.controls.get()).sendingPaused) { await finish('pending', 'sending_paused'); return; }
     if (!subscription || (subscription.subscription.expirationTime && subscription.subscription.expirationTime <= this.clock().getTime())) {
       await this.options.subscriptions.remove(job.subscriptionId); await finish('expired', 'subscription_expired'); return;
     }
@@ -172,7 +202,7 @@ export class DeliveryPipeline {
     let minimumDelay = 0;
     try {
       status = (await this.options.sender.send(subscription.subscription, {
-        ...campaign.content, version: 1, notificationId: id, sentAt: this.clock().toISOString(),
+        ...campaign.content, version: 1, notificationId: id, sentAt: this.clock().toISOString(), reporting: this.reports.payload(job),
       })).statusCode;
     } catch (error) {
       const response = error as { statusCode?: number; headers?: Record<string, unknown> };
@@ -217,7 +247,9 @@ export class DeliveryPipeline {
 
   async reconcile() {
     const now = this.clock();
+    const controls = await this.controls.get();
     const campaignFailure = await this.scan<Campaign>('campaign', ['scheduled', 'pending', 'queued', 'dispatching', 'sending'], async campaign => {
+      if (controls.dispatchPaused && campaign.state !== 'sending') return;
       if (campaign.state === 'scheduled' && Date.parse(campaign.scheduledAt!) <= now.getTime()) {
         if (await this.options.database.replace({ ...campaign, state: 'pending', updatedAt: now.toISOString() } as Campaign, campaign._etag!)) await this.publishCampaign(campaign.id);
       } else if (campaign.state === 'pending'
@@ -236,7 +268,7 @@ export class DeliveryPipeline {
       const due = delivery.state === 'pending' && new Date(delivery.nextAttemptAt) <= now;
       const abandoned = delivery.state === 'processing' && new Date(delivery.leaseUntil!) <= now;
       const stale = delivery.state === 'queued' && now.getTime() - new Date(delivery.updatedAt).getTime() >= 120_000;
-      if (due || abandoned || stale) await this.publishDelivery(delivery);
+      if (!controls.sendingPaused && (due || abandoned || stale)) await this.publishDelivery(delivery);
     });
     if (campaignFailure || deliveryFailure) throw new Error('Some recovery records will retry on the next scan.');
   }

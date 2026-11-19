@@ -1,6 +1,6 @@
 # Foundation API Contract
 
-This document describes the direct Foundation profile. The queued profile's management API and local CLI are documented in [Phase 3](phase-3.md).
+This document describes the direct Foundation profile. The queued profile's campaign API and CLI are documented in [Phase 3](phase-3.md); browser administrator sessions, reporting, and pause controls are documented in [Phase 4](phase-4.md).
 
 The Foundation API is a loopback-only development service at `http://127.0.0.1:8787`. The subscriber frontend uses Vite's same-origin `/api` proxy. These routes have local file persistence and are not the cloud administrator API.
 

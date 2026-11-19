@@ -57,6 +57,9 @@ export interface Delivery extends Document {
   leaseId?: string;
   reason?: string;
   providerStatus?: number;
+  eventExpiresAt?: string;
+  receivedAt?: string;
+  clickedAt?: string;
 }
 export type SubscriptionDocument = Document & StoredSubscription & { kind: 'subscription' };
 interface Counter extends Document { count: number }

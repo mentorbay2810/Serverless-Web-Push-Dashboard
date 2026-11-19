@@ -1,5 +1,7 @@
 # Phase 3: Campaigns and reliable sending
 
+This records the Phase 3 handoff. [Phase 4](phase-4.md) adds the campaign editor, local browser administrator sessions, persistent receipt/click observations, delivery reports, and pause controls.
+
 Phase 3 adds campaign drafts, tag targeting, immediate and scheduled sending, cancellation, paginated fan-out, and final campaign outcomes. The API and local CLI are implemented. The campaign editor, schedule controls, and analytics screens remain milestone 4 work.
 
 The strict INR 100 budget decision remains in force: cloud deployment is off, no Azure or Entra resources were created, and no deployment workflow was added. Local files exercise the pipeline; they do not validate Azure behavior. See [the deployment policy](../infra/deployment-policy.json).
