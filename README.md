@@ -6,7 +6,7 @@ Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, 
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.3`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
+The local candidate is `0.1.0-rc.4`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
 
 ```sh
 npm ci
@@ -93,6 +93,8 @@ The release check runs tests, builds, packaging, an isolated compiled-app HTTP f
 
 For the recorded local experiment matrix, use `npm run research:run` from a clean committed checkout. It compares audiences 10/100/1,000, workers 1/2/4 and fresh/reused processes with five measured repetitions. Reports, verified raw evidence and CSV exports go to `.cache/research/<suite-uuid>/`. [Phase 7](docs/phase-7.md) explains replay, optional PNG/SVG figures and the limits of local timing and unmeasured costs.
 
+[Phase 8](docs/phase-8.md) prepares the academic review package. Read [the review report and evidence index](docs/review/README.md), then use `npm run review:check` for public consistency checks. The editable Word draft is generated locally from the private outline; cloud/browser/scale gaps and academic approval remain explicit.
+
 Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
 
 The tests cover subscription ownership, hostile endpoint rejection, persistence, registration races, expired endpoints, send limits, fallback notifications, and safe notification clicks. The API integration tests use a fake sender; a real-browser push check remains a separate verification step.
@@ -119,5 +121,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 5 local release candidate](docs/phase-5.md)
 - [Phase 6 validation and local benchmark](docs/phase-6.md)
 - [Phase 7 local experiments and analysis](docs/phase-7.md)
+- [Phase 8 academic review preparation](docs/phase-8.md)
 - [Local operations runbook](docs/operations.md)
 - [Foundation API contract](docs/api.md)

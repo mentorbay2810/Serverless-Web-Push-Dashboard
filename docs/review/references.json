@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "citation": "M. Thomson, E. Damaggio and B. Raymor, ed. Generic Event Delivery Using HTTP Push. RFC 8030, December 2016.",
+    "url": "https://www.rfc-editor.org/info/rfc8030/",
+    "basis": "Protocol specification",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 2,
+    "citation": "M. Thomson. Message Encryption for Web Push. RFC 8291, November 2017.",
+    "url": "https://www.rfc-editor.org/info/rfc8291/",
+    "basis": "Protocol specification",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 3,
+    "citation": "M. Thomson and P. Beverloo. Voluntary Application Server Identification (VAPID) for Web Push. RFC 8292, November 2017.",
+    "url": "https://www.rfc-editor.org/info/rfc8292/",
+    "basis": "Protocol specification",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 4,
+    "citation": "W3C. Push API. Working Draft, 16 November 2026. This document remains a work in progress.",
+    "url": "https://www.w3.org/TR/2026/WD-push-api-20261116/",
+    "basis": "Dated browser API specification",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 5,
+    "citation": "P. Castro, V. Isahagian, V. Muthusamy and A. Slominski. The rise of serverless computing. Communications of the ACM, 2019. DOI 10.1145/3368454.",
+    "url": "https://research.ibm.com/publications/the-rise-of-serverless-computing",
+    "basis": "Publication metadata verified; full text not reviewed here",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 6,
+    "citation": "E. Jonas et al. Cloud Programming Simplified: A Berkeley View on Serverless Computing. Technical Report UCB/EECS-2019-3, University of California Berkeley, February 2019.",
+    "url": "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2019/EECS-2019-3.html",
+    "basis": "Publisher metadata and abstract",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 7,
+    "citation": "S. Eismann et al. Serverless Applications: Why, When, and How? IEEE Software 38(1), 32-39, 2021. DOI 10.1109/MS.2020.3023302.",
+    "url": "https://joelscheuner.com/publication/eismann-21-ieeesw/",
+    "basis": "Author publication page, abstract and accepted manuscript",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 8,
+    "citation": "Microsoft. Azure Functions Node.js developer reference. Microsoft Learn.",
+    "url": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-node",
+    "basis": "Official programming model documentation",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 9,
+    "citation": "Microsoft. Duplicate detection in Azure Service Bus. Microsoft Learn.",
+    "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection",
+    "basis": "Official tier and delivery semantics documentation",
+    "checked": "2026-11-18"
+  },
+  {
+    "id": 10,
+    "citation": "Microsoft. Create and manage budgets. Microsoft Cost Management documentation.",
+    "url": "https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets",
+    "basis": "Official budget behavior documentation",
+    "checked": "2026-11-18"
+  }
+]

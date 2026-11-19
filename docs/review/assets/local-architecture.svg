@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="468" height="405" preserveAspectRatio="xMinYMin meet" viewBox="0 0 468 405" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="468" height="405"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-405)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="5" y="335" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="22.734250000000003" y="372" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,744) scale(1,-1)">Browser interfaces</text>
+			<text x="36.14335" y="358" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,716) scale(1,-1)">Subscriber page</text>
+			<text x="19.34754999999999" y="346" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,692) scale(1,-1)">Administrator dashboard</text>
+			<rect x="169" y="335" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="210.07575" y="372" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,744) scale(1,-1)">Local API</text>
+			<text x="177.91635" y="358" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,716) scale(1,-1)">Subscription and campaign</text>
+			<text x="206.8626" y="346" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,692) scale(1,-1)">management</text>
+			<rect x="333" y="335" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="355.10225" y="372" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,744) scale(1,-1)">Private local files</text>
+			<text x="343.9856" y="358" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,716) scale(1,-1)">Campaigns and outcomes</text>
+			<text x="355.6199" y="346" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,692) scale(1,-1)">Subscription records</text>
+			<rect x="5" y="235" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="27.70075" y="272" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,544) scale(1,-1)">Campaign queue</text>
+			<text x="24.25329999999999" y="258" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,516) scale(1,-1)">Persistent local queue</text>
+			<text x="27.619899999999994" y="246" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,492) scale(1,-1)">Campaign identifiers</text>
+			<rect x="169" y="235" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="196.368" y="272" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,544) scale(1,-1)">Fan out worker</text>
+			<text x="199.3668" y="258" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,516) scale(1,-1)">Frozen audience</text>
+			<text x="187.9929" y="246" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,492) scale(1,-1)">25 recipients per page</text>
+			<rect x="333" y="235" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="360.6515" y="272" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,544) scale(1,-1)">Delivery queue</text>
+			<text x="352.25329999999997" y="258" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,516) scale(1,-1)">Persistent local queue</text>
+			<text x="360.0188" y="246" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,492) scale(1,-1)">Delivery identifiers</text>
+			<rect x="5" y="135" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="21.563499999999998" y="172" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,344) scale(1,-1)">Timer and recovery</text>
+			<text x="39.2449" y="158" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,316) scale(1,-1)">Due schedules</text>
+			<text x="18.57099999999999" y="146" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,292) scale(1,-1)">Pending work and retries</text>
+			<rect x="169" y="135" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="202.4895" y="172" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,344) scale(1,-1)">Push worker</text>
+			<text x="194.4564" y="158" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,316) scale(1,-1)">Payload encryption</text>
+			<text x="187.221" y="146" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,292) scale(1,-1)">VAPID request signing</text>
+			<rect x="333" y="135" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="343.43675" y="172" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,344) scale(1,-1)">Browser push service</text>
+			<text x="353.2856" y="158" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,316) scale(1,-1)">Subscription endpoint</text>
+			<text x="355.61525" y="146" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,292) scale(1,-1)">Provider acceptance</text>
+			<rect x="333" y="35" width="130" height="55" rx="4" ry="0" style="stroke: rgb(57%,64%,68%); stroke-linecap: butt; stroke-width: 0.8; fill: rgb(96%,96%,97%); fill-rule: evenodd;"/>
+			<text x="360.64625" y="72" style="font-family: Helvetica-Bold; font-size: 10.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,144) scale(1,-1)">Service worker</text>
+			<text x="357.16835" y="58" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,116) scale(1,-1)">Notification creation</text>
+			<text x="347.0918" y="46" style="font-family: Helvetica; font-size: 9.3px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,92) scale(1,-1)">Receipt and click reports</text>
+			<path d="M 135,362 L 169,362 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="169 362, 164.6121 364.3971, 164.6121 359.6029" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 299,362 L 333,362 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="333 362, 328.6121 364.3971, 328.6121 359.6029" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 234,335 L 234,315 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<path d="M 234,315 L 70,315 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<path d="M 70,315 L 70,290 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="70 290, 72.39713 294.3879, 67.60287 294.3879" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 135,262 L 169,262 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="169 262, 164.6121 264.3971, 164.6121 259.6029" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 299,262 L 333,262 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="333 262, 328.6121 264.3971, 328.6121 259.6029" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 398,235 L 398,215 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<path d="M 398,215 L 234,215 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<path d="M 234,215 L 234,190 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="234 190, 236.3971 194.3879, 231.6029 194.3879" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 70,190 L 70,235 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="70 235, 67.60287 230.6121, 72.39713 230.6121" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 299,162 L 333,162 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="333 162, 328.6121 164.3971, 328.6121 159.6029" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<path d="M 398,135 L 398,90 Z" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1.2;"/>
+			<polygon points="398 90, 400.3971 94.38791, 395.6029 94.38791" style="stroke: rgb(27%,33%,38%); stroke-linecap: butt; stroke-width: 1; fill: rgb(27%,33%,38%); fill-rule: evenodd;"/>
+			<text x="10" y="78" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,156) scale(1,-1)">API and workers share one local Node process.</text>
+			<text x="10" y="62" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,124) scale(1,-1)">Document and queue state persists in private files.</text>
+			<text x="10" y="46" style="font-family: Helvetica; font-size: 9.5px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,92) scale(1,-1)">Receipt and click reports return through the API.</text>
+		</g>
+	</g>
+</svg>
