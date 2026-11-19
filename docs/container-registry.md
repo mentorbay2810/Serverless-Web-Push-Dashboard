@@ -8,6 +8,14 @@ ghcr.io/mentorbay2810/serverless-web-push-dashboard:0.1.0-rc.8
 
 Each published image index contains Linux AMD64 and ARM64 variants. Docker selects the host architecture automatically: Windows Docker Desktop uses Linux containers, Intel/AMD Linux uses AMD64, and Apple Silicon uses ARM64. No host Node/npm, source checkout, GitHub token or Azure account is needed for the local app once the package is public.
 
+Version `0.1.0-rc.8` was published and downloaded anonymously on 19 November 2026. Its source commit is `05b376ae58c18250ab11f3b89a46f225c0b1ed35`; [the publishing run](https://github.com/mentorbay2810/Serverless-Web-Push-Dashboard/actions/runs/44567127547) passed both architecture tests and verified the uploaded index. The immutable image index digest is:
+
+```text
+sha256:fa141f47daa7ebc351f948434b27c6ba84b1e04be44e78ce3e2e12caa04a28b7
+```
+
+The download was checked using an empty Docker credential configuration. Later documentation commits do not change this recorded image identity.
+
 ## First publication: package visibility
 
 The publishing workflow creates the actual package and checks both architecture manifests. GitHub creates new container packages as **Private**, even when their linked source repository is public. A package administrator must then open [the package settings](https://github.com/users/mentorbay2810/packages/container/serverless-web-push-dashboard/settings), choose **Change visibility → Public**, and confirm the package name. This is a one-time setting; public images can be downloaded without a GitHub sign-in. See [GitHub's visibility instructions](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility).

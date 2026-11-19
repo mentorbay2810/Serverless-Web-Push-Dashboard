@@ -6,7 +6,7 @@ Ongoing cloud deployment is disabled: the project has a strict INR 100 monthly c
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.8`. To install a prebuilt image on another laptop, follow [the registry installation guide](docs/container-registry.md): download the standalone Compose file, pull the image, and start it without a source build. First publication requires the package administrator's one-time Public visibility setting.
+The local candidate is `0.1.0-rc.8`. Its AMD64/ARM64 image is published publicly on GHCR, with anonymous pull verified. To install it on another laptop, follow [the registry installation guide](docs/container-registry.md): download the standalone Compose file, pull the image, and start it without a source build or GitHub login.
 
 For building from source on Windows, macOS, or Linux with Docker running, no host Node.js or Azure account is required:
 
