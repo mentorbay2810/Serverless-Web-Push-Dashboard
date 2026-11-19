@@ -6,6 +6,9 @@ dist/
 .data/
 .cache/
 .sites-runtime/
+.azure/
+.azure-profiles/
+.container-backup/
 local.settings.json
 *.tsbuildinfo
 .DS_Store

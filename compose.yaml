@@ -1,0 +1,38 @@
+name: swpd
+services:
+  webpush:
+    image: swpd-local:latest
+    build:
+      context: .
+    init: true
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "127.0.0.1:${SWPD_WEB_PORT:-5173}:${SWPD_WEB_PORT:-5173}"
+    environment:
+      WEB_ORIGIN: "http://localhost:${SWPD_WEB_PORT:-5173}"
+      VAPID_SUBJECT: "${SWPD_VAPID_SUBJECT:-mailto:developer@example.com}"
+    volumes:
+      - webpush-data:/app/.data
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    stop_grace_period: 30s
+  azure:
+    # Optional account tools; never started by the normal `compose up` command.
+    profiles: [azure]
+    image: mcr.microsoft.com/azure-cli:azurelinux3.0
+    entrypoint: [az]
+    working_dir: /workspace
+    environment:
+      AZURE_CONFIG_DIR: /azure-auth
+    volumes:
+      - azure-auth:/azure-auth
+      - ./infra:/workspace/infra:ro
+      - ./.azure-profiles:/workspace/profiles
+volumes:
+  webpush-data:
+  azure-auth:

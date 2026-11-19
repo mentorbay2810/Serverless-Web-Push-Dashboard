@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": { "value": "centralindia" },
+    "webOrigin": { "value": "https://YOUR-NEW-FRONTEND-HOST" },
+    "tenantId": { "value": "NEW-TENANT-ID" },
+    "apiClientId": { "value": "NEW-API-APPLICATION-ID" },
+    "spaClientId": { "value": "NEW-SPA-APPLICATION-ID" },
+    "administratorObjectId": { "value": "ADMIN-OBJECT-ID-IN-NEW-TENANT" },
+    "vapidPrivateKey": { "value": "NEW-ENVIRONMENT-PRIVATE-KEY" },
+    "vapidPublicKey": { "value": "NEW-ENVIRONMENT-PUBLIC-KEY" },
+    "vapidSubject": { "value": "mailto:YOUR-CONTACT-ADDRESS" },
+    "maximumInstanceCount": { "value": 1 },
+    "maximumSubscriptions": { "value": 100 },
+    "dailyAttemptLimit": { "value": 1000 }
+  }
+}

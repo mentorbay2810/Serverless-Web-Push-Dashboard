@@ -6,7 +6,16 @@ Ongoing cloud deployment is disabled: the project has a strict INR 100 monthly c
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.6`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
+The local candidate is `0.1.0-rc.7`. For Windows, macOS, or Linux with Docker running, no host Node.js or Azure account is required:
+
+```sh
+docker compose up --build -d --wait
+docker compose exec webpush node dist/tools/admin-login.js
+```
+
+Open [http://localhost:5173](http://localhost:5173) for the subscriber page, then the printed private link for the administrator dashboard. [Container setup and operations](docs/containers.md) covers persistence, port changes, Windows/Apple Silicon support and backups. The container uses its own persistent keys/data, separate from the native local demo. [Reusable Azure account setup](docs/azure-account-setup.md) uses isolated sign-in and explicit new tenant/subscription values; cloud deployment remains off.
+
+For a native development setup, use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
 
 ```sh
 npm ci
@@ -127,4 +136,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 7 local experiments and analysis](docs/phase-7.md)
 - [Phase 8 academic review preparation](docs/phase-8.md)
 - [Local operations runbook](docs/operations.md)
+- [Cross-platform container setup](docs/containers.md)
+- [Reusable Azure account setup](docs/azure-account-setup.md)
 - [Foundation API contract](docs/api.md)

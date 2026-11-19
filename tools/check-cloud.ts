@@ -1,28 +1,32 @@
 import { spawnSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { parseArgs } from 'node:util';
+import { checkAzureTarget, parseAzureTarget } from './azure-target.js';
 
-const version = process.versions.node;
-console.log(`Node.js: ${version} (24 recommended; 22.19+ supported locally).`);
-for (const [label, command] of [['Azure CLI', 'az'], ['Functions Core Tools', 'func']] as const) {
-  const result = spawnSync('/usr/bin/which', [command], { encoding: 'utf8' });
-  console.log(`${label}: ${result.status === 0 ? 'installed' : 'not installed'}.`);
+try {
+  const { values } = parseArgs({ options: { azure: { type: 'boolean' }, profile: { type: 'string' } } });
+  // Windows distributes these CLIs as .cmd launchers. Cloud arguments below
+  // are fixed literals or values validated by parseAzureTarget before execution.
+  const shell = process.platform === 'win32';
+  const installed = (command: string) => spawnSync(command, ['--version'], { shell, stdio: 'ignore', timeout: 10000 }).status === 0;
+  console.log(`Node.js: ${process.versions.node} (24 recommended; 22.19+ supported locally).`);
+  console.log(`Azure CLI: ${installed('az') ? 'installed' : 'not installed; the optional Docker azure service is also available'}.`);
+  console.log(`Functions Core Tools: ${installed('func') ? 'installed' : 'not installed'}.`);
+  if (values.azure) {
+    if (!values.profile) throw new Error('Use --azure --profile .azure-profiles/new-account.json. An explicit tenant and subscription prevent checking the previous account by mistake.');
+    const target = parseAzureTarget(JSON.parse(await readFile(values.profile, 'utf8')));
+    const result = checkAzureTarget(target, args => {
+      const response = spawnSync('az', [...args, '--only-show-errors', '--output', 'json'], { encoding: 'utf8', shell, timeout: 25000 });
+      if (response.status !== 0) throw new Error('Azure CLI could not verify the target. Sign in to its tenant, check permissions, and retry. No resources were created.');
+      return JSON.parse(response.stdout);
+    });
+    console.log('Target tenant, subscription, and enabled state verified.');
+    console.log(result.freeTierAccountPresent ? 'Cosmos free tier is already allocated in this subscription; inspect reuse before deployment.' : 'No free-tier Cosmos account found. Billing-offer eligibility still needs verification.');
+    console.log(`Flex Consumption Node runtimes in ${target.location}: ${result.nodeRuntimes.join(', ') || 'none reported'}.`);
+    console.log('New Entra API/SPA registrations, administrator identity, and billing permissions must be configured for this target.');
+  } else console.log('For an account-specific read-only check, use --azure --profile .azure-profiles/new-account.json.');
+  console.log('No Azure resources were created. Cloud deployment remains disabled. See docs/azure-account-setup.md.');
+} catch (error) {
+  console.error((error as NodeJS.ErrnoException).code ? 'Could not read the target profile or run the required CLI. Check the path and installation.' : error instanceof Error ? error.message : 'Cloud readiness check failed.');
+  process.exitCode = 1;
 }
-console.log('Account, free-tier availability, region, and Entra tenant access require an authenticated Azure check.');
-if (process.argv.includes('--azure')) {
-  const index = process.argv.indexOf('--region');
-  const region = index >= 0 ? process.argv[index + 1] : 'centralindia';
-  if (!region || !/^[a-z]+$/.test(region)) throw new Error('Use an Azure region name such as centralindia.');
-  function azure(args: string[]): string | undefined {
-    const result = spawnSync('az', [...args, '--only-show-errors'], { encoding: 'utf8', timeout: 25_000 });
-    return result.status === 0 ? result.stdout.trim() : undefined;
-  }
-  const state = azure(['account', 'show', '--query', 'state', '--output', 'tsv']);
-  console.log(`Azure subscription: ${state === 'Enabled' ? 'active sign-in verified' : 'not verified; authenticate with Azure CLI before deployment'}.`);
-  if (state === 'Enabled') {
-    const count = azure(['cosmosdb', 'list', '--query', 'length([?enableFreeTier == `true`])', '--output', 'json']);
-    console.log(`Cosmos free-tier account: ${count === undefined ? 'availability not verified' : Number(count) === 0 ? 'none currently enabled; free-tier slot appears unused' : 'already allocated; plan reuse or an alternative before deployment'}.`);
-    const versions = azure(['functionapp', 'list-flexconsumption-runtimes', '--location', region, '--runtime', 'node', '--query', '[].version', '--output', 'json']);
-    console.log(`Flex Consumption Node runtimes in ${region}: ${versions ? JSON.stringify(JSON.parse(versions)) : 'not verified'}.`);
-    console.log('Entra application registration permissions and billing-offer eligibility still need verification before deployment.');
-  }
-}
-console.log('No Azure resources were created. See docs/foundation.md for the deployment preflight.');

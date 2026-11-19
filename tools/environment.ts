@@ -12,7 +12,7 @@ function findProjectRoot() {
   throw new Error('Cannot locate the project root. Run this command from the project checkout.');
 }
 export const projectRoot = findProjectRoot();
-export const envPath = resolve(projectRoot, '.env');
+export const envPath = resolve(projectRoot, process.env.WEBPUSH_ENV_FILE ?? '.env');
 
 export function parseLocalEnvironment(values: Record<string, string | undefined>, root = projectRoot) {
   const publicKey = values.VAPID_PUBLIC_KEY;
