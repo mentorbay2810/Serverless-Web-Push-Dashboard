@@ -1,6 +1,6 @@
 {
   "name": "serverless-web-push-dashboard",
-  "version": "0.1.0-rc.4",
+  "version": "0.1.0-rc.5",
   "private": true,
   "type": "module",
   "workspaces": ["apps/*", "packages/*"],
@@ -9,6 +9,7 @@
     "setup": "tsx tools/setup.ts",
     "doctor": "tsx tools/doctor.ts",
     "local:unlock": "tsx tools/local-unlock.ts",
+    "local:retention": "tsx tools/local-retention.ts",
     "start": "node dist/tools/start.js",
     "release:check": "tsx tools/release-check.ts",
     "release:smoke": "node dist/tools/release-smoke.js",
