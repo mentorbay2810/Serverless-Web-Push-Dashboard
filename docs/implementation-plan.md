@@ -10,6 +10,8 @@ Phase 3 is implemented locally: campaign CRUD, tag targeting, frozen audiences, 
 
 Phase 4 is implemented locally with the campaign dashboard, expiring browser administrator sessions, reviewed activation, separate persistent acceptance/receipt/click metrics, failure details, and durable pause controls. All 68 tests and builds pass. A live local API flow produced provider acceptance and a real browser receipt. Automated visual/UI interaction checks and live Azure/Entra checks remain unverified; see [Phase 4 evidence and limits](phase-4.md). Cloud deployment remains off under the strict INR 100 ceiling.
 
+Phase 5 prepares `0.1.0-rc.1` as a local candidate with a built server, configuration/data ownership safeguards, paused recovery startup, a repeatable release gate, source/artifact fingerprints, a review bundle, and test-only public CI. Verification output is saved in `.cache/release/report.json`; see [Phase 5](phase-5.md) and [operations](operations.md). Hosted deployment and cloud automation remain deferred by the strict budget decision, and UI/cross-browser/cloud checks remain explicitly unverified.
+
 ## Scope and completion criteria
 
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.
@@ -153,4 +155,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The Foundation and local implementations of milestones 2–4 are delivered. Next, prepare the local release candidate and complete real UI/cross-browser checks before broader validation and benchmarking. Retain the strict INR 100 budget decision: cloud deployment, deployment automation, and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.
+The Foundation and local implementations of milestones 2–5 are prepared. Next, broaden functional/security and real UI/cross-browser validation, then build the controlled benchmark harness. Retain the strict INR 100 budget decision: cloud deployment, deployment automation, and live Azure/Entra checks stay deferred until the user authorizes a compatible billing approach.

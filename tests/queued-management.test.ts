@@ -12,7 +12,7 @@ test('local management stays behind host, origin, and CLI-token checks; public a
   const keys = webpush.generateVAPIDKeys();
   const runtime = queuedLocal({ port: 8787, webOrigin: 'http://localhost:5173', adminToken: 'private-cli-token', dataDirectory: directory,
     vapid: { ...keys, subject: 'mailto:developer@example.com' } });
-  context.after(async () => { runtime.stop(); await rm(directory, { recursive: true, force: true }); });
+  context.after(async () => { await runtime.stop(); await rm(directory, { recursive: true, force: true }); });
   const request = (path: string, token?: string, origin?: string, host = '127.0.0.1:8787') => runtime.handle(new Request(`http://${host}${path}`, {
     headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(origin ? { Origin: origin } : {}) },
   }));

@@ -6,21 +6,22 @@ Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, 
 
 ## Start locally
 
-Use Node.js 24, or Node.js 22.19+ for this local Foundation. Node 22.19 was used for the initial checks. The recommended Azure runtime remains Node 24.
+The local candidate is `0.1.0-rc.1`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
 
 ```sh
 npm ci
 npm run setup
-npm run dev:queued
+npm run build
+npm start
 ```
 
-The queued profile includes the campaign dashboard and persistent campaign/delivery queues. To run the original direct-send Foundation profile instead, use:
+`npm start` serves the built dashboard and persistent queued backend without Vite. For editing with hot reload, use `npm run dev:queued` instead. To run the original direct-send Foundation profile, use:
 
 ```sh
 npm run dev
 ```
 
-Run only one profile at a time. Both use the same local ports. When switching between profiles for the first time, reconnect the browser because their subscriber stores are separate.
+Run only one backend at a time. Entry points lock the local data directory. The built and queued development profiles share subscribers; switching to or from the direct Foundation profile for the first time requires reconnecting because its subscriber store is separate.
 
 Open [http://localhost:5173](http://localhost:5173) in a supported browser. Choose **Enable notifications**, allow the browser prompt, and wait for the connection badge to say **Connected**. Permission marked **Allowed** alone is not a saved subscription.
 
@@ -43,7 +44,7 @@ Stop both local services with `Ctrl+C` in the development terminal.
 
 ## Open the campaign dashboard
 
-With `npm run dev:queued` running, use another terminal:
+With the built service or queued development profile running, use another terminal:
 
 ```sh
 npm run admin:login
@@ -75,18 +76,20 @@ The frontend obtains only the public key from `/api/config`. Private keys, CLI t
 
 The development API binds to `127.0.0.1:8787`; Vite serves the page at `http://localhost:5173` and proxies `/api`. The API rejects foreign origins and non-loopback hosts. These development-only routes must not be deployed publicly.
 
-If changing `API_PORT`, use `npm run dev` so the frontend proxy receives the matching port. The documented frontend origin and Vite's fixed port should remain aligned.
+The local origin must be HTTP on localhost or 127.0.0.1 with an explicit port different from `API_PORT`. The development runner follows this configuration. Project-local data stays inside ignored `.data`. Run `npm run doctor` for configuration, permission, lock, and data-format checks. After a crash, `npm run local:unlock` removes only verified stale ownership locks.
 
 ## Checks
 
 ```sh
-npm run typecheck
-npm test
-npm run build
-npm run check:cloud
+npm run doctor
+npm run release:check
 ```
 
 The build emits frontend files in `apps/dashboard/dist/` and compiled TypeScript in root `dist/`. Neither contains the root `.env`. `npm run package:cloud` builds a local ZIP containing the Azure HTTP, Service Bus, and recovery handlers. Packaging does not deploy anything.
+
+The release check runs tests, builds, packaging, an isolated compiled-app HTTP flow with a controlled sender, credential scanning, and the disabled deployment-policy check. It writes `.cache/release/report.json`. On a clean committed checkout, `npm run release:package` creates a source/dashboard/cloud-package review ZIP and SHA-256 checksum in `.cache/releases/`.
+
+Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
 
 The tests cover subscription ownership, hostile endpoint rejection, persistence, registration races, expired endpoints, send limits, fallback notifications, and safe notification clicks. The API integration tests use a fake sender; a real-browser push check remains a separate verification step.
 
@@ -109,4 +112,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 2 implementation and verification](docs/phase-2.md)
 - [Phase 3 campaigns and reliable sending](docs/phase-3.md)
 - [Phase 4 dashboard, access, and analytics](docs/phase-4.md)
+- [Phase 5 local release candidate](docs/phase-5.md)
+- [Local operations runbook](docs/operations.md)
 - [Foundation API contract](docs/api.md)

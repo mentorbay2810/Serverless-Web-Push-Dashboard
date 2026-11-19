@@ -1,5 +1,7 @@
 # Phase 4: Campaign dashboard and analytics
 
+[Phase 5](phase-5.md) subsequently adds the built local server, startup/data ownership safeguards, paused recovery startup, and reproducible candidate checks. The dashboard also runs with `npm start` after a build.
+
 The administrator dashboard now manages campaign drafts, notification previews, tag or selected-browser audiences, immediate and scheduled sending, cancellation, subscriber tags, delivery details, and persistent pause controls. Reports show provider acceptance, browser receipts, and clicks separately.
 
 The project remains local under the strict INR 100 budget decision. No Azure or Entra resources were created and no publishing or deployment workflow was added. [Deployment policy](../infra/deployment-policy.json) remains disabled.

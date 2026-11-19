@@ -5,17 +5,17 @@ import { LocalQueuePublisher } from '../../../packages/adapters/src/local-queue.
 import { WebPushSender } from '../../../packages/adapters/src/web-push-sender.js';
 import { DurableSubscriptionStore } from '../../../packages/core/src/durable.js';
 import { DeliveryPipeline } from '../../../packages/core/src/pipeline.js';
-import { AppError, DEFAULT_NOTIFICATION, summarize } from '../../../packages/core/src/index.js';
+import { AppError, DEFAULT_NOTIFICATION, summarize, type PushSender } from '../../../packages/core/src/index.js';
 import { cloudApplication } from './cloud-application.js';
 import type { loadEnvironment } from '../../../tools/environment.js';
 import { LocalAdminSessions } from './local-sessions.js';
 
-export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
+export function queuedLocal(config: ReturnType<typeof loadEnvironment>, overrides: { sender?: PushSender } = {}) {
   const database = new FileDocumentDatabase(join(config.dataDirectory, 'phase2-documents.json'));
   const queue = new LocalQueuePublisher(new FileDocumentDatabase(join(config.dataDirectory, 'phase2-queues.json')));
   const subscriptions = new DurableSubscriptionStore(database, 'local');
   const pipeline = new DeliveryPipeline({ database, queue, subscriptions, siteId: 'local', dailyAttemptLimit: 1000,
-    eventSecret: config.vapid.privateKey, eventBaseUrl: config.webOrigin, sender: new WebPushSender(config.vapid) });
+    eventSecret: config.vapid.privateKey, eventBaseUrl: config.webOrigin, sender: overrides.sender ?? new WebPushSender(config.vapid) });
   const sessions = new LocalAdminSessions();
   const digest = (value: string) => createHash('sha256').update(value).digest();
   const localAuthorized = (header: string | null) => !!header?.startsWith('Bearer ')
@@ -34,6 +34,7 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
   });
   let working = false;
   let stopping = false;
+  let recovering: Promise<void> | undefined;
   const timer = setInterval(async () => {
     if (working || stopping) return;
     working = true;
@@ -41,7 +42,9 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
     catch { console.error('Queued local processing will retry. Check local data and configuration.'); }
     finally { working = false; }
   }, 150);
-  const recovery = setInterval(() => { if (!stopping) void pipeline.reconcile().catch(() => console.error('Local recovery will retry.')); }, 60_000);
+  const recovery = setInterval(() => {
+    if (!stopping && !recovering) recovering = pipeline.reconcile().catch(() => console.error('Local recovery will retry.')).finally(() => { recovering = undefined; });
+  }, 60_000);
   const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { 'Cache-Control': 'no-store' } });
   const handle = async (request: Request) => {
     const url = new URL(request.url);
@@ -83,5 +86,9 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
     }
     return json({ error: 'Endpoint not found.' }, 404);
   };
-  return { handle, stop() { stopping = true; clearInterval(timer); clearInterval(recovery); } };
+  return { handle, async stop() {
+    stopping = true; clearInterval(timer); clearInterval(recovery);
+    while (working) await new Promise(resolve => setTimeout(resolve, 10));
+    await recovering;
+  } };
 }
