@@ -1,7 +1,7 @@
 name: Local release checks
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main, 'SWPD/**']
   pull_request:
 permissions:
   contents: read
