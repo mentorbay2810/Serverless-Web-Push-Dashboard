@@ -46,10 +46,10 @@ This advisory is recorded rather than treating an offline audit result as eviden
 
 ## Azure preflight
 
-`npm run check:cloud` reports local tool availability. An optional read-only account check is available:
+`npm run check:cloud` reports local tool availability. For a new account, first create the private target profile described in [reusable Azure setup](azure-account-setup.md). An optional read-only account check is available:
 
 ```sh
-npm run check:cloud -- --azure --region centralindia
+npm run check:cloud -- --azure --profile .azure-profiles/new-account.json
 ```
 
 The implementation machine has Node 22.19 and Azure CLI installed. Functions Core Tools is not installed. Azure CLI returned an enabled cached subscription, but the remote Cosmos free-tier and Flex Consumption runtime checks could not be verified in this session. No Azure resources were created.

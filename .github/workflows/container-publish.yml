@@ -1,0 +1,109 @@
+name: Publish container image
+on:
+  push:
+    branches: [main, SWPD/container-and-azure-portability]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - compose.image.yaml
+      - package.json
+      - package-lock.json
+      - tsconfig*.json
+      - apps/**
+      - packages/**
+      - tools/**
+      - tests/**
+      - .github/workflows/container-publish.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: container-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    # Public standard runners only. PRs and forks never publish to this namespace.
+    if: >-
+      github.event.repository.private == false &&
+      github.repository == 'mentorbay2810/Serverless-Web-Push-Dashboard' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/SWPD/container-and-azure-portability')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.x'
+          package-manager-cache: false
+      - name: Compute image names
+        id: image
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          version = json.load(open('package.json'))['version']
+          if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+)?', version):
+              raise SystemExit('Invalid container version')
+          image = 'ghcr.io/' + os.environ['GITHUB_REPOSITORY'].lower()
+          tags = [image + ':' + version, image + ':sha-' + os.environ['GITHUB_SHA']]
+          if os.environ['GITHUB_REF'] == 'refs/heads/main':
+              tags.append(image + ':latest')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('image=' + image + '\nversion=' + version + '\ntags<<TAGS\n' + '\n'.join(tags) + '\nTAGS\n')
+          PY
+      - name: Enable both CPU architectures
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
+        with:
+          platforms: arm64
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Build and smoke-test each architecture before publishing
+        shell: bash
+        run: |
+          for platform in linux/amd64 linux/arm64; do
+            docker buildx build --platform "$platform" --load --tag swpd-local:latest .
+            DOCKER_DEFAULT_PLATFORM="$platform" npm run container:smoke
+            DOCKER_DEFAULT_PLATFORM="$platform" SWPD_COMPOSE_FILE=compose.image.yaml SWPD_IMAGE=swpd-local:latest npm run container:smoke
+          done
+      - name: Authenticate with this repository's short-lived token
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish the verified multi-platform image
+        id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.image.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.image.outputs.version }}
+            org.opencontainers.image.title=Serverless Web Push Dashboard
+            org.opencontainers.image.description=Local web push dashboard with persistent queued delivery; Azure deployment is optional and disabled by default.
+      - name: Verify the uploaded image index
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        shell: bash
+        run: |
+          docker buildx imagetools inspect --raw "$IMAGE@$DIGEST" > /tmp/swpd-image-index.json
+          python3 - <<'PY'
+          import json
+          index = json.load(open('/tmp/swpd-image-index.json'))
+          platforms = {(item.get('platform', {}).get('os'), item.get('platform', {}).get('architecture')) for item in index['manifests']}
+          assert {('linux', 'amd64'), ('linux', 'arm64')} <= platforms, platforms
+          print('Uploaded image contains Linux AMD64 and ARM64 manifests.')
+          PY
+          echo "### Published container" >> "$GITHUB_STEP_SUMMARY"
+          echo "Image: $IMAGE@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          echo "Both architectures passed both Compose installation smoke tests before publishing." >> "$GITHUB_STEP_SUMMARY"
+          echo "The package must be Public for installers to pull without a GitHub login." >> "$GITHUB_STEP_SUMMARY"

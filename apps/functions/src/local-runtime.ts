@@ -14,7 +14,7 @@ import { close, httpServer, listen, type Handler } from './http-server.js';
 import { staticFrontend } from './static-frontend.js';
 
 type Config = ReturnType<typeof loadEnvironment>;
-export interface LocalRuntimeOptions { queued?: boolean; frontendDirectory?: string; sender?: PushSender; startPaused?: boolean }
+export interface LocalRuntimeOptions { queued?: boolean; frontendDirectory?: string; frontendHost?: '0.0.0.0'; sender?: PushSender; startPaused?: boolean }
 export async function startLocalRuntime(config: Config, options: LocalRuntimeOptions = {}) {
   if (options.frontendDirectory) await access(join(options.frontendDirectory, 'index.html')).catch(() => { throw new Error('The dashboard build is missing. Run npm run build first.'); });
   const release = await acquireLocalLock(join(config.dataDirectory, 'backend.lock'));
@@ -37,7 +37,7 @@ export async function startLocalRuntime(config: Config, options: LocalRuntimeOpt
       const current = await controls.get(); await controls.set({ dispatchPaused: true, sendingPaused: true }, current._etag!);
     }
     const origin = new URL(config.webOrigin);
-    const starts = await Promise.allSettled([listen(backend, config.port, '127.0.0.1'), ...(web ? [listen(web, Number(origin.port), origin.hostname)] : [])]);
+    const starts = await Promise.allSettled([listen(backend, config.port, '127.0.0.1'), ...(web ? [listen(web, Number(origin.port), options.frontendHost ?? origin.hostname)] : [])]);
     if (starts.some(result => result.status === 'rejected')) throw new Error('A local port could not be opened. Stop the other service or choose different API_PORT and WEB_ORIGIN ports.');
     const current: Config = { ...config, port: (backend.address() as AddressInfo).port };
     if (web) { origin.port = String((web.address() as AddressInfo).port); current.webOrigin = origin.origin; }

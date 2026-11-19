@@ -1,0 +1,4 @@
+Dockerfile text eol=lf
+compose.yaml text eol=lf
+compose.image.yaml text eol=lf
+*.mjs text eol=lf

@@ -1,6 +1,6 @@
 {
   "name": "serverless-web-push-dashboard",
-  "version": "0.1.0-rc.6",
+  "version": "0.1.0-rc.8",
   "private": true,
   "type": "module",
   "workspaces": ["apps/*", "packages/*"],
@@ -36,6 +36,7 @@
     "campaigns": "tsx tools/campaigns.ts",
     "admin:login": "tsx tools/admin-login.ts",
     "check:cloud": "tsx tools/check-cloud.ts",
+    "container:smoke": "node tools/container-smoke.mjs",
     "package:cloud": "tsx tools/package-cloud.ts"
   },
   "devDependencies": {
