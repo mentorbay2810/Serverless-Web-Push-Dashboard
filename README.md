@@ -6,7 +6,7 @@ Cloud deployment is disabled: the project has a strict INR 100 monthly ceiling, 
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.4`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
+The local candidate is `0.1.0-rc.5`. Use Node.js 24, or Node.js 22.19+. The recommended Azure runtime remains Node 24.
 
 ```sh
 npm ci
@@ -96,6 +96,8 @@ For the recorded local experiment matrix, use `npm run research:run` from a clea
 [Phase 8](docs/phase-8.md) prepares the academic review package. Read [the review report and evidence index](docs/review/README.md), then use `npm run review:check` for public consistency checks. The editable Word draft is generated locally from the private outline; cloud/browser/scale gaps and academic approval remain explicit.
 
 Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
+
+The [post-review maintenance record](docs/maintenance.md) adds offline history retention with preview, private backup, and guarded undo. With the backend stopped, `npm run local:retention` previews terminal history older than 30 days. The full dependency audit, including development packages, reported zero findings on 19 November 2026; CI now checks that same scope. The earlier research and Word review packages remain dated snapshots.
 
 The tests cover subscription ownership, hostile endpoint rejection, persistence, registration races, expired endpoints, send limits, fallback notifications, and safe notification clicks. The API integration tests use a fake sender; a real-browser push check remains a separate verification step.
 

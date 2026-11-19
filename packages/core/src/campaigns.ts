@@ -71,6 +71,7 @@ export class CampaignManager {
     const fingerprint = digest(JSON.stringify({ ...draft, ready }));
     const existing = await this.database.read<Campaign>(id);
     if (existing) {
+      if (existing.kind !== 'campaign') throw new AppError(409, 'This idempotency key belongs to archived history. Use a new key for a new campaign.');
       // Support retries of test campaigns saved by the previous local phase.
       const legacyMatch = ready && !existing.requestFingerprint && JSON.stringify(existing.content) === JSON.stringify(draft.content)
         && draft.audience.type === 'selected' && JSON.stringify(existing.subscriptionIds) === JSON.stringify(draft.audience.subscriptionIds);

@@ -55,6 +55,39 @@ With services stopped, restore the matching environment and data snapshot. Run `
 
 Restoring queued state can replay work that a provider accepted after the snapshot. The pipeline is at least once and cannot guarantee exactly-once notification display. Keep backup/restore trials in a separate private data directory if you are rehearsing recovery.
 
+## Retain terminal history offline
+
+Local JSON adapters do not enforce the documents' Cosmos TTL fields. Retention is an explicit offline operation for the queued profile. Stop the backend, then preview:
+
+```sh
+npm run local:retention
+npm run local:retention -- plan 90
+```
+
+The default is 30 days; accepted ages are whole days from 30 to 3,650. Preview prints counts, cutoff, and a plan ID. It saves a private plan under `<LOCAL_DATA_DIR>/retention/` and leaves application history unchanged. Plans contain hashes and record identities, with no notification text or subscription keys. They expire after 24 hours, and any document/queue byte change invalidates them. An active or stale backend lock prevents every retention command; stale ownership requires the separate documented unlock procedure.
+
+Only terminal campaigns whose known deliveries are all terminal qualify. Campaign creation/update/schedule times and delivery update/receipt/click/retry times must precede the cutoff. Live or malformed leases, unexpired observation capabilities, inconsistent children, incomplete completed campaigns, and queue or dead-letter references preserve the entire group. Cancelled/failed groups can have recipients that were never expanded. Unknown document kinds and orphan delivery history are preserved for inspection.
+
+After inspecting the preview, apply its exact ID while services remain stopped:
+
+```sh
+npm run local:retention -- apply <plan-id>
+```
+
+Apply first writes and syncs private recovery copies of both queued files and a manifest, then replaces the document file atomically. Queue bytes stay unchanged. Removed deliveries and campaign content leave the active reports; a minimal `campaign-archive` marker retains the campaign ID and site, an ETag, and archive time. Retrying its old creation key returns HTTP 409; a new campaign needs a new key. Markers remain indefinitely to prevent replay, so this tool does not place a fixed bound on total record count.
+
+Subscriptions, Foundation data, VAPID keys, quotas, daily counters, delivery controls, recovery cursors, queues, and dead letters remain in place. Private files must be regular files without symbolic/hard links; data and artifact directories must have no group/other permissions. Fix ownership or permissions deliberately rather than copying private data into a public location.
+
+To undo just that retention edit, use the returned backup ID **before any other queued state changes**:
+
+```sh
+npm run local:retention -- restore <backup-id>
+```
+
+Undo verifies the backup and requires the current document and queue hashes to match the post-retention state. It restores the original document bytes without touching the queues. If state has changed, it refuses to overwrite newer work; use the full offline recovery procedure above when recovering a later operational incident. After retention or undo, run `npm run doctor`, then start paused to inspect work.
+
+Recovery copies still contain the archived private history. Retention does not erase those backups, clean the Foundation profile, or schedule automatic deletion. Keep them outside Git and served directories, and set their disposal policy separately. See [the maintenance record](maintenance.md) for the synthetic rehearsal and audit evidence.
+
 ## Candidate verification and evidence
 
 `npm run release:check` runs the repeatable local gate in isolated test storage and writes `.cache/release/report.json`. It never sends real push messages. After committing unchanged source, `npm run release:package` creates the candidate ZIP and checksum. See [Phase 5](phase-5.md) for contents and limits.
