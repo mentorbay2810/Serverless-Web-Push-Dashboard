@@ -1,5 +1,7 @@
 # Run on Windows, macOS, or Linux
 
+For installation without downloading/building source, use [the prebuilt GHCR image and standalone Compose file](container-registry.md). The instructions below cover the source-based installation and shared operating behavior.
+
 Install and start [Docker Desktop](https://docs.docker.com/compose/install/) on Windows or macOS. On Windows, use Linux containers with the WSL 2 backend. Linux can use Docker Engine with the Compose plugin. The app builds for Linux AMD64 and ARM64, including Intel/AMD PCs and Apple Silicon. No host Node.js, npm, Python, Azure account, or database installation is required for this local app.
 
 Download or clone this repository, open a terminal in its root directory, and run these same commands in PowerShell, macOS Terminal, or a Linux shell:
@@ -73,6 +75,6 @@ npm run container:smoke
 
 The optional smoke command needs host Node 22.19+ (the actual app does not). It creates a uniquely named temporary Compose project, tests non-root startup, HTTP/admin access, persistent keys/subscriber/draft, crash recovery and revoked sessions, and removes only that temporary project's volumes afterward. It never activates a campaign or calls Azure/a real push service. Run native release checks separately as documented in the README.
 
-Builds use the locked npm dependencies and the maintained Node 24 Debian image. Rebuild with `--pull` to pick up base-image security updates. Do not treat a locally built image as a pre-published multi-platform image; [Buildx](https://docs.docker.com/build/building/multi-platform/) can build a distribution image for both architectures when a registry is chosen.
+Builds use the locked npm dependencies and the maintained Node 24 Debian image. Rebuild with `--pull` to pick up base-image security updates. The [registry workflow](container-registry.md) separately builds, tests and publishes both architectures. Source builds and registry pulls are separate installation choices.
 
 For each installer's Azure account, use the optional [isolated Azure setup](azure-account-setup.md). It is not required for local Docker operation.

@@ -6,7 +6,9 @@ Ongoing cloud deployment is disabled: the project has a strict INR 100 monthly c
 
 ## Start locally
 
-The local candidate is `0.1.0-rc.7`. For Windows, macOS, or Linux with Docker running, no host Node.js or Azure account is required:
+The local candidate is `0.1.0-rc.8`. To install a prebuilt image on another laptop, follow [the registry installation guide](docs/container-registry.md): download the standalone Compose file, pull the image, and start it without a source build. First publication requires the package administrator's one-time Public visibility setting.
+
+For building from source on Windows, macOS, or Linux with Docker running, no host Node.js or Azure account is required:
 
 ```sh
 docker compose up --build -d --wait
@@ -137,5 +139,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 8 academic review preparation](docs/phase-8.md)
 - [Local operations runbook](docs/operations.md)
 - [Cross-platform container setup](docs/containers.md)
+- [Prebuilt image registry and installation](docs/container-registry.md)
 - [Reusable Azure account setup](docs/azure-account-setup.md)
 - [Foundation API contract](docs/api.md)

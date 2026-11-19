@@ -4,6 +4,9 @@ import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
 import { request as httpRequest } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { copyFile, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const project = `swpd-check-${randomBytes(6).toString('hex')}`;
@@ -12,8 +15,14 @@ await new Promise((resolve, reject) => { probe.once('error', reject); probe.list
 const port = probe.address().port;
 await new Promise(resolve => probe.close(resolve));
 const env = { ...process.env, SWPD_WEB_PORT: String(port) };
-const compose = (...args) => execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', 'docker/compose.env.example', '-p', project, ...args],
-  { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 180000, maxBuffer: 4 * 1024 * 1024 });
+const composeFile = process.env.SWPD_COMPOSE_FILE ?? 'compose.yaml';
+if (!['compose.yaml', 'compose.image.yaml'].includes(composeFile)) throw new Error('Use compose.yaml or compose.image.yaml for smoke checks.');
+// Registry installs must work with only the downloaded Compose file, without source.
+const installDirectory = composeFile === 'compose.image.yaml' ? await mkdtemp(join(tmpdir(), 'swpd-install-check-')) : undefined;
+if (installDirectory) await copyFile(join(root, composeFile), join(installDirectory, 'compose.yaml'));
+const compose = (...args) => execFileSync('docker', ['compose', '-f', 'compose.yaml',
+  ...(installDirectory ? [] : ['--env-file', 'docker/compose.env.example']), '-p', project, ...args],
+  { cwd: installDirectory ?? root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 180000, maxBuffer: 4 * 1024 * 1024 });
 const base = `http://127.0.0.1:${port}`;
 // Each probe uses a fresh connection, including immediately after a forced kill.
 const request = (path, options = {}) => fetch(`${base}${path}`, { ...options,
@@ -32,6 +41,7 @@ let stage = 'startup';
 try {
   started = true;
   compose('up', '--wait', '--wait-timeout', '120', '--no-build', 'webpush');
+  if (installDirectory) assert.deepEqual(await readdir(installDirectory), ['compose.yaml']);
   stage = 'startup access checks';
   const identity = compose('exec', '-T', 'webpush', 'node', '-e', "console.log(process.getuid()); console.log(require('node:fs').existsSync('/app/.env'))").trim().split(/\r?\n/);
   assert.deepEqual(identity, ['1000', 'false'], 'The app must run without root or a baked-in root .env.');
@@ -91,5 +101,6 @@ try {
   if (error.stderr) console.error(String(error.stderr).slice(-1500));
   process.exitCode = 1;
 } finally {
-  if (started) compose('down', '--volumes', '--remove-orphans');
+  try { if (started) compose('down', '--volumes', '--remove-orphans'); }
+  finally { if (installDirectory) await rm(installDirectory, { recursive: true, force: true }); }
 }

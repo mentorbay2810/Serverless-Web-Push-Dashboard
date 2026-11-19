@@ -1,0 +1,24 @@
+# Standalone installation: download this file, then run Docker Compose. No source build.
+name: swpd
+services:
+  webpush:
+    image: ${SWPD_IMAGE:-ghcr.io/mentorbay2810/serverless-web-push-dashboard:0.1.0-rc.8}
+    init: true
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "127.0.0.1:${SWPD_WEB_PORT:-5173}:${SWPD_WEB_PORT:-5173}"
+    environment:
+      WEB_ORIGIN: "http://localhost:${SWPD_WEB_PORT:-5173}"
+      VAPID_SUBJECT: "${SWPD_VAPID_SUBJECT:-mailto:developer@example.com}"
+    volumes:
+      - webpush-data:/app/.data
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    stop_grace_period: 30s
+volumes:
+  webpush-data:
