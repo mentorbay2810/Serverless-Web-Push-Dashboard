@@ -7,6 +7,16 @@ param tenantId string
 param apiClientId string
 param spaClientId string
 param administratorObjectId string
+@minValue(1)
+@maxValue(1000)
+@description('Per-function scale-group ceiling. This is an application limit, not a currency cap.')
+param maximumInstanceCount int = 1
+@minValue(1)
+@maxValue(100)
+param maximumSubscriptions int = 100
+@minValue(1)
+@maxValue(1000)
+param dailyAttemptLimit int = 1000
 @secure()
 param vapidPrivateKey string
 param vapidPublicKey string
@@ -131,8 +141,7 @@ resource functions 'Microsoft.Web/sites@2024-04-01' = {
         authentication: { type: 'SystemAssignedIdentity' }
       } }
       scaleAndConcurrency: {
-        // Flex enforces a minimum maximum-instance setting of 40; idle compute still scales to zero.
-        maximumInstanceCount: 40
+        maximumInstanceCount: maximumInstanceCount
         instanceMemoryMB: 512
         alwaysReady: []
         triggers: { http: { perInstanceConcurrency: 4 } }
@@ -141,6 +150,7 @@ resource functions 'Microsoft.Web/sites@2024-04-01' = {
     siteConfig: {
       minTlsVersion: '1.2'
       ftpsState: 'Disabled'
+      cors: { allowedOrigins: [webOrigin], supportCredentials: false }
       appSettings: [
         { name: 'AzureWebJobsStorage__credential', value: 'managedidentity' }
         { name: 'AzureWebJobsStorage__blobServiceUri', value: storage.properties.primaryEndpoints.blob }
@@ -160,8 +170,8 @@ resource functions 'Microsoft.Web/sites@2024-04-01' = {
         { name: 'ENTRA_API_CLIENT_ID', value: apiClientId }
         { name: 'ENTRA_SPA_CLIENT_ID', value: spaClientId }
         { name: 'ADMIN_OBJECT_IDS', value: administratorObjectId }
-        { name: 'MAX_SUBSCRIPTIONS', value: '100' }
-        { name: 'DAILY_ATTEMPT_LIMIT', value: '1000' }
+        { name: 'MAX_SUBSCRIPTIONS', value: string(maximumSubscriptions) }
+        { name: 'DAILY_ATTEMPT_LIMIT', value: string(dailyAttemptLimit) }
         { name: 'VAPID_PUBLIC_KEY', value: vapidPublicKey }
         { name: 'VAPID_PRIVATE_KEY', value: vapidPrivateKey }
         { name: 'VAPID_SUBJECT', value: vapidSubject }

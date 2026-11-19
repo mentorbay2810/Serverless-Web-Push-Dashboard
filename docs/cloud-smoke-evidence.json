@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "status": "temporary_cloud_smoke_passed_and_removed",
+  "recordedDate": "2026-11-19",
+  "timezone": "Asia/Kolkata",
+  "candidate": "0.1.0-rc.6",
+  "sourceCommitAtDeployment": "9497dc2e3c9f5b9dcbce60d79d4f7979ccd27e0c",
+  "deployedBackendZipSha256": "4fbb94e8495a7ea599ce4565430b9afe36c131de667ec04f5d45f710e153589e",
+  "templateSha256": "a726c59fcde61f0978d8de0a6a68afb4f0b7cc92bd5b8145506296f01585756b",
+  "frontendFiles": [
+    {
+      "path": "assets/admin-7J0Fs78H.js",
+      "sha256": "69dffe2739cde507b85fc254256521c32b03b5e75ddbfcfa77cbdb4c394eebe7",
+      "bytes": 37318
+    },
+    {
+      "path": "assets/admin-CcCU8dZI.css",
+      "sha256": "75aecbb98531890c34c2aac83275baaacf2bc413dec877e55a263df55ffd15d4",
+      "bytes": 16773
+    },
+    {
+      "path": "assets/dist-BI-C95S3.js",
+      "sha256": "4cd7e408e42a6c41ed1c157bd7b2b4aa533803d649df3ae665930ff1c5080370",
+      "bytes": 279009
+    },
+    {
+      "path": "assets/index-Cp6f5o6d.css",
+      "sha256": "b6b373232ff71ad9a46029227415b19b680b8b984269842378e805f199159322",
+      "bytes": 13274
+    },
+    {
+      "path": "assets/index-DYCNlhjn.js",
+      "sha256": "ed23df6bba0fa86909d9e9f208b8f6dbe34375956b55dbc31f5a5634ea9b3a79",
+      "bytes": 245971
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "71f814fcaa29f1b69397610075adc832afeb572bf5216738397945ec22f09f87",
+      "bytes": 309
+    },
+    {
+      "path": "index.html",
+      "sha256": "8d79bf29c6acfbbe4f32483eb4a30a15175fe48465a69401629596637a081b4f",
+      "bytes": 632
+    },
+    {
+      "path": "staticwebapp.config.json",
+      "sha256": "af84f84bcb90ec9e110be8c12217cdb08b4e7672403464edcafd36b04faeb488",
+      "bytes": 426
+    },
+    {
+      "path": "sw.js",
+      "sha256": "34be80cba441e1151e91dc17d68a17e00f24ae3c31d72bec43be79588343474e",
+      "bytes": 3448
+    }
+  ],
+  "scope": "One actual subscribed browser; two public-page test notifications; Azure Cosmos and Service Bus; functional check only.",
+  "httpChecks": [
+    {
+      "path": "/api/health",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "path": "/api/config",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "path": "/api/admin/me",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "path": "/api/config",
+      "expected": 403,
+      "actual": 403
+    }
+  ],
+  "storageCheck": {
+    "checkedAt": "2026-11-19T08:56:12.461Z",
+    "fixture": "synthetic registration only; no provider request",
+    "created": 201,
+    "read": 200,
+    "removed": 200
+  },
+  "frontendRoutes": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html",
+      "cacheControl": "no-store"
+    },
+    {
+      "path": "/admin",
+      "status": 200,
+      "contentType": "text/html",
+      "cacheControl": "public, must-revalidate, max-age=30"
+    },
+    {
+      "path": "/sw.js",
+      "status": 200,
+      "contentType": "text/javascript",
+      "cacheControl": "no-store"
+    }
+  ],
+  "browserCors": {
+    "configStatus": 200,
+    "preflightStatus": 204,
+    "exactFrontendOriginMatched": true
+  },
+  "resources": {
+    "maximumInstancesPerScaleGroup": 1,
+    "memoryMB": 512,
+    "alwaysReadyInstances": 0,
+    "cosmosFreeTier": true,
+    "messagingTier": "Basic",
+    "storageTier": "Standard_LRS",
+    "frontendTier": "Free"
+  },
+  "realDelivery": {
+    "subscribers": 1,
+    "campaignsCompleted": 2,
+    "providerAccepted": 2,
+    "browserReceipts": 2,
+    "browserClickReports": 1,
+    "operatorReportedNotificationDisplay": true,
+    "deliveries": [
+      {
+        "state": "accepted",
+        "attempts": 1,
+        "providerStatus": 201,
+        "receivedAt": "2026-11-19T09:12:17.758Z",
+        "clickedAt": null
+      },
+      {
+        "state": "accepted",
+        "attempts": 1,
+        "providerStatus": 201,
+        "receivedAt": "2026-11-19T09:12:35.520Z",
+        "clickedAt": "2026-11-19T09:12:39.126Z"
+      }
+    ]
+  },
+  "cleanup": {
+    "confirmedAt": "2026-11-19T09:31:08.279Z",
+    "resourceGroupRemoved": true,
+    "temporaryEntraApplicationsRemoved": 2,
+    "costAlertRetained": true,
+    "budgetAmount": 100,
+    "budgetCurrency": "INR",
+    "budgetEndsAt": "2026-12-01T00:00:00Z",
+    "recipient": "operator-provided private email; not published"
+  },
+  "reportedCost": {
+    "checkedAt": "2026-11-19T09:31:14.298Z",
+    "status": "not_yet_reported",
+    "amount": null,
+    "currency": "INR",
+    "scope": "this test resource group only",
+    "billingCanBeDelayed": true
+  },
+  "limits": [
+    "No live Microsoft administrator browser sign-in was exercised.",
+    "Browser/OS versions and viewport/keyboard evidence were not collected.",
+    "Receipt and click counts are browser reports; OS notification display was reported by the operator.",
+    "No synthetic received/clicked event was submitted by test tools.",
+    "No cloud load test, serverless/always-on comparison, final invoice, or zero-cost guarantee is established.",
+    "Default deployment remains disabled after this separately approved one-time test."
+  ]
+}
