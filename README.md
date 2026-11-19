@@ -82,12 +82,14 @@ The local origin must be HTTP on localhost or 127.0.0.1 with an explicit port di
 
 ```sh
 npm run doctor
-npm run release:check
+npm run validate:local
 ```
 
 The build emits frontend files in `apps/dashboard/dist/` and compiled TypeScript in root `dist/`. Neither contains the root `.env`. `npm run package:cloud` builds a local ZIP containing the Azure HTTP, Service Bus, and recovery handlers. Packaging does not deploy anything.
 
 The release check runs tests, builds, packaging, an isolated compiled-app HTTP flow with a controlled sender, credential scanning, and the disabled deployment-policy check. It writes `.cache/release/report.json`. On a clean committed checkout, `npm run release:package` creates a source/dashboard/cloud-package review ZIP and SHA-256 checksum in `.cache/releases/`.
+
+`validate:local` includes that release check and a bounded synthetic baseline smoke. It emits validation/JUnit evidence in `.cache/validation/`. For repeated local measurements, use `npm run benchmark -- --audience 100 --repetitions 3 --warmup 1`. Read [Phase 6](docs/phase-6.md) for raw traces, metric definitions and pending browser/cloud checks. These timings use memory adapters and mock HTTP acceptance; they do not establish serverless performance or cloud costs.
 
 Use `npm start -- --paused` to inspect restored work before resuming. Read [the operations runbook](docs/operations.md) for shutdown, stale locks, backups, and recovery, and [Phase 5](docs/phase-5.md) for candidate checks, CI scope, and remaining verification.
 
@@ -113,5 +115,6 @@ The public page's activity feed records events observed in that page session. Th
 - [Phase 3 campaigns and reliable sending](docs/phase-3.md)
 - [Phase 4 dashboard, access, and analytics](docs/phase-4.md)
 - [Phase 5 local release candidate](docs/phase-5.md)
+- [Phase 6 validation and local benchmark](docs/phase-6.md)
 - [Local operations runbook](docs/operations.md)
 - [Foundation API contract](docs/api.md)

@@ -2,6 +2,8 @@
 
 Keep cloud deployment off under [the recorded strict INR 100 decision](../infra/deployment-policy.json). These instructions operate the local demonstration.
 
+For a complete local validation run, use `npm run validate:local`; results and JUnit evidence are in `.cache/validation/`. `npm run benchmark -- --audience 100 --repetitions 3 --warmup 1` starts and tears down an isolated synthetic host and mock without touching `.data`. Keep repeated timing experiments separate from application/test activity. See [Phase 6](phase-6.md) for bounds, raw trace formats and measurement limitations.
+
 ## Start, stop, and sign in
 
 Run `npm run setup` once, `npm run build`, then `npm start`. For source development, use `npm run dev:queued`. Open the configured frontend origin and generate a local administrator link with `npm run admin:login` in another terminal. The link lasts two minutes, the session one hour; restarting the API revokes sessions.
