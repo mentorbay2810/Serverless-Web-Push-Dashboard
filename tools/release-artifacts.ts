@@ -7,7 +7,7 @@ export const sha256 = (bytes: Uint8Array | string) => createHash('sha256').updat
 export async function sourceDigest(root: string, files: string[]) {
   const hash = createHash('sha256');
   for (const file of files) {
-    if (isAbsolute(file) || file.split('/').some(part => ['..', '.git', '.data', '.cache', 'node_modules'].includes(part))
+    if (isAbsolute(file) || file.split('/').some(part => ['..', '.git', '.data', '.cache', '.azure', '.azure-profiles', '.aws', '.container-backup', 'node_modules'].includes(part))
       || /(?:^|\/)(?:\.env(?!\.example$)|local\.settings\.json)/.test(file)) throw new Error('A private or generated path was included in the source set.');
     const path = join(root, file);
     if (!(await lstat(path)).isFile()) throw new Error('Release sources must be regular files, not symlinks.');

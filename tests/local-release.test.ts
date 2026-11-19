@@ -107,6 +107,9 @@ test('release source identity detects changed bytes and refuses private paths or
   await writeFile(join(root, 'app.ts'), 'modified'); assert.notEqual(await sourceDigest(root, ['app.ts']), before);
   await writeFile(join(root, '.env.example'), 'PUBLIC_EXAMPLE='); assert.ok(await sourceDigest(root, ['.env.example']));
   await writeFile(join(root, '.env'), 'private'); await assert.rejects(sourceDigest(root, ['.env']), /private or generated/);
+  for (const path of ['.azure/config', '.azure-profiles/new-account.parameters.json', '.aws/credentials', '.container-backup/config/.env']) {
+    await assert.rejects(sourceDigest(root, [path]), /private or generated/);
+  }
   await symlink(join(root, 'app.ts'), join(root, 'alias.ts')); await assert.rejects(sourceDigest(root, ['alias.ts']), /regular files/);
   await assert.rejects(sourceDigest(root, ['../private']), /private or generated/);
 });

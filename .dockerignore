@@ -6,6 +6,7 @@
 .aws
 .data
 .cache
+.container-backup
 .sites-runtime
 **/node_modules
 **/dist
