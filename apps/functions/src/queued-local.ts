@@ -14,9 +14,20 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
   const queue = new LocalQueuePublisher(new FileDocumentDatabase(join(config.dataDirectory, 'phase2-queues.json')));
   const subscriptions = new DurableSubscriptionStore(database, 'local');
   const pipeline = new DeliveryPipeline({ database, queue, subscriptions, siteId: 'local', dailyAttemptLimit: 1000, sender: new WebPushSender(config.vapid) });
+  const digest = (value: string) => createHash('sha256').update(value).digest();
+  const localAuthorized = (header: string | null) => !!header?.startsWith('Bearer ')
+    && timingSafeEqual(digest(header.slice(7)), digest(config.adminToken));
   const publicApi = cloudApplication({ subscriptions, pipeline, webOrigin: config.webOrigin,
     config: { mode: 'local', vapidPublicKey: config.vapid.publicKey, maxSubscriptions: 100 },
     auth: { async authenticate() { throw new AppError(401, 'Entra administrator access is not configured in this local profile.'); } },
+  });
+  // This handler is reachable only through the host, origin, and CLI-token checks below.
+  const managementApi = cloudApplication({ subscriptions, pipeline, webOrigin: config.webOrigin,
+    config: { mode: 'local', vapidPublicKey: config.vapid.publicKey, maxSubscriptions: 100 },
+    auth: { async authenticate(header) {
+      if (!localAuthorized(header)) throw new AppError(401, 'Local CLI authorization is required.');
+      return { objectId: 'local-cli' };
+    } },
   });
   let working = false;
   let stopping = false;
@@ -34,9 +45,11 @@ export function queuedLocal(config: ReturnType<typeof loadEnvironment>) {
     if (![ `localhost:${config.port}`, `127.0.0.1:${config.port}` ].includes(url.host)
       || (request.headers.has('origin') && request.headers.get('origin') !== config.webOrigin)) return json({ error: 'Only the configured local origin is allowed.' }, 403);
     if (!url.pathname.startsWith('/api/local/')) return publicApi(request);
-    const digest = (value: string) => createHash('sha256').update(value).digest();
-    const supplied = request.headers.get('authorization') ?? '';
-    if (!supplied.startsWith('Bearer ') || !timingSafeEqual(digest(supplied.slice(7)), digest(config.adminToken))) return json({ error: 'Local CLI authorization is required.' }, 401);
+    if (!localAuthorized(request.headers.get('authorization'))) return json({ error: 'Local CLI authorization is required.' }, 401);
+    if (url.pathname.startsWith('/api/local/manage/')) {
+      url.pathname = url.pathname.replace('/api/local/manage/', '/api/admin/');
+      return managementApi(new Request(url, request));
+    }
     if (url.pathname === '/api/local/subscriptions' && request.method === 'GET') return json({ subscriptions: (await subscriptions.list()).map(summarize) });
     if (url.pathname === '/api/local/send-test' && request.method === 'POST') {
       try {

@@ -22,6 +22,7 @@ export interface StoredSubscription {
   tokenHash: string;
   createdAt: string;
   lastAcceptedAt?: string;
+  tags?: string[];
 }
 
 export interface SubscriptionSummary {
@@ -29,6 +30,7 @@ export interface SubscriptionSummary {
   provider: string;
   createdAt: string;
   lastAcceptedAt?: string;
+  tags?: string[];
 }
 
 export interface PublicConfig {
@@ -129,6 +131,7 @@ export function summarize(record: StoredSubscription): SubscriptionSummary {
     id: record.id,
     provider: new URL(record.subscription.endpoint).hostname,
     createdAt: record.createdAt,
+    tags: record.tags ?? [],
     ...(record.lastAcceptedAt ? { lastAcceptedAt: record.lastAcceptedAt } : {}),
   };
 }

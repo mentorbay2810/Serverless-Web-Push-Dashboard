@@ -6,7 +6,7 @@ let runtime: ReturnType<typeof createCloudRuntime> | undefined;
 const current = () => runtime ??= createCloudRuntime();
 
 app.http('cloudApi', {
-  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'], authLevel: 'anonymous', route: '{*path}',
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], authLevel: 'anonymous', route: '{*path}',
   handler: async request => {
     if (request.url.endsWith('/api/health')) return { jsonBody: { status: 'ok', mode: 'azure' } };
     const text = ['GET', 'OPTIONS', 'DELETE'].includes(request.method) ? undefined : await request.text();

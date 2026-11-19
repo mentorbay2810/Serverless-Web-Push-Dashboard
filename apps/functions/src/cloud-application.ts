@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import { AppError, parseNotification, parseSubscription, summarize, type PublicConfig } from '../../../packages/core/src/index.js';
 import type { Campaign, Delivery, DurableSubscriptionStore, SubscriptionDocument } from '../../../packages/core/src/durable.js';
 import { DeliveryPipeline, subscriptionId } from '../../../packages/core/src/pipeline.js';
+import { deliveryId } from '../../../packages/core/src/campaigns.js';
 import type { AdminAuthenticator } from '../../../packages/adapters/src/entra.js';
 
 export interface CloudApplicationOptions {
@@ -15,6 +16,17 @@ const hash = (value: string) => createHash('sha256').update(value).digest('hex')
 
 export function cloudApplication(options: CloudApplicationOptions) {
   const json = (value: unknown, status: number, headers: Headers) => new Response(JSON.stringify(value), { status, headers });
+  const campaignSummary = (campaign: Campaign) => ({ id: campaign.id, name: campaign.name ?? campaign.content.title,
+    content: campaign.content, audience: campaign.audience ?? { type: 'selected', subscriptionIds: campaign.subscriptionIds },
+    state: campaign.state, createdAt: campaign.createdAt, updatedAt: campaign.updatedAt ?? campaign.createdAt,
+    scheduledAt: campaign.scheduledAt, recipientCount: campaign.subscriptionIds.length,
+    dispatchedCount: campaign.dispatchIndex ?? (campaign.state === 'sending' ? campaign.subscriptionIds.length : 0) });
+  function version(request: Request) {
+    const header = request.headers.get('if-match');
+    if (!header) throw new AppError(428, 'Read the current version and supply its ETag in If-Match.');
+    try { const value: unknown = JSON.parse(header); if (typeof value === 'string' && value) return value; } catch { /* Reject malformed preconditions. */ }
+    throw new AppError(400, 'Supply the exact ETag returned by this record.');
+  }
   async function input(request: Request) {
     if (!request.headers.get('content-type')?.startsWith('application/json')) throw new AppError(415, 'Send JSON content.');
     const text = await request.text();
@@ -36,9 +48,10 @@ export function cloudApplication(options: CloudApplicationOptions) {
       const origin = request.headers.get('origin');
       if (origin && origin !== options.webOrigin) throw new AppError(403, 'This website origin is not allowed.');
       if (origin) headers.set('Access-Control-Allow-Origin', origin);
+      headers.set('Access-Control-Expose-Headers', 'ETag');
       if (request.method === 'OPTIONS') {
-        headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Idempotency-Key');
-        headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+        headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Idempotency-Key, If-Match');
+        headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
         return new Response(null, { status: 204, headers });
       }
       const path = new URL(request.url).pathname.replace(/\/$/, '');
@@ -63,21 +76,87 @@ export function cloudApplication(options: CloudApplicationOptions) {
           const page = await options.subscriptions.database.page<SubscriptionDocument>('subscription', 50, cursor);
           return json({ subscriptions: page.items.map(summarize), cursor: page.cursor }, 200, headers);
         }
+        const subscriberMatch = /^\/api\/admin\/subscriptions\/([a-f0-9]{64})(\/tags)?$/.exec(path);
+        if (subscriberMatch?.[1]) {
+          const id = subscriberMatch[1];
+          if (!subscriberMatch[2] && request.method === 'GET') {
+            const record = await options.subscriptions.database.read<SubscriptionDocument>(id);
+            if (!record || record.kind !== 'subscription') throw new AppError(404, 'Subscription not found.');
+            headers.set('ETag', JSON.stringify(record._etag));
+            return json(summarize(record), 200, headers);
+          }
+          if (subscriberMatch[2] && request.method === 'PATCH') {
+            const data = await input(request);
+            const record = await options.pipeline.campaigns.setTags(id, data.tags, version(request));
+            if (!record) throw new AppError(404, 'Subscription was removed.');
+            headers.set('ETag', JSON.stringify(record._etag));
+            return json(summarize(record), 200, headers);
+          }
+        }
+        if (path === '/api/admin/segments/preview' && request.method === 'POST') {
+          const data = await input(request);
+          return json(await options.pipeline.campaigns.preview(data.audience), 200, headers);
+        }
+        if (path === '/api/admin/campaigns' && request.method === 'POST') {
+          const campaign = await options.pipeline.campaigns.create(admin.objectId, request.headers.get('idempotency-key') ?? '', await input(request));
+          headers.set('ETag', JSON.stringify(campaign._etag));
+          return json(campaignSummary(campaign), 201, headers);
+        }
+        if (path === '/api/admin/campaigns' && request.method === 'GET') {
+          const url = new URL(request.url);
+          const cursor = url.searchParams.get('cursor') ?? undefined;
+          const state = url.searchParams.get('state');
+          if (cursor && cursor.length > 4096) throw new AppError(400, 'Invalid page cursor.');
+          if (state && !['draft', 'scheduled', 'pending', 'queued', 'dispatching', 'sending', 'completed', 'completed_with_failures', 'cancelled', 'failed'].includes(state)) throw new AppError(400, 'Invalid campaign state.');
+          const page = await options.subscriptions.database.page<Campaign>('campaign', 25, cursor, state ? [state] : undefined);
+          return json({ campaigns: page.items.map(campaignSummary), cursor: page.cursor }, 200, headers);
+        }
         if (path === '/api/admin/campaigns/test' && request.method === 'POST') {
           const data = await input(request);
           if (!Array.isArray(data.subscriptionIds) || data.subscriptionIds.some(id => typeof id !== 'string')) throw new AppError(400, 'Select the subscriptions to test.');
           const result = await options.pipeline.submit(admin.objectId, request.headers.get('idempotency-key') ?? '', data, data.subscriptionIds as string[]);
           return json(result, 202, headers);
         }
-        const campaignMatch = /^\/api\/admin\/campaigns\/([a-f0-9]{64})$/.exec(path);
+        const campaignMatch = /^\/api\/admin\/campaigns\/([a-f0-9]{64})(?:\/(preview|send|schedule|cancel))?$/.exec(path);
         if (campaignMatch?.[1] && request.method === 'GET') {
-          const campaign = await options.subscriptions.database.read<Campaign>(campaignMatch[1]);
-          if (!campaign || campaign.kind !== 'campaign') throw new AppError(404, 'Campaign not found.');
-          // Small Phase 2 target sets allow bounded point reads rather than an unbounded scan.
-          const deliveries = await Promise.all(campaign.subscriptionIds.map(id => options.subscriptions.database.read<Delivery>(hash(`delivery:${campaign.id}:${id}`))));
+          if (campaignMatch[2]) throw new AppError(404, 'Endpoint not found.');
+          const campaign = await options.pipeline.campaigns.get(campaignMatch[1]);
+          // The demo has at most 100 frozen recipients, so outcome reads remain bounded.
+          const deliveries = await Promise.all(campaign.subscriptionIds.map(id => options.subscriptions.database.read<Delivery>(deliveryId(campaign.id, id))));
           const counts: Record<string, number> = {};
-          for (const delivery of deliveries) counts[delivery?.state ?? 'not_dispatched'] = (counts[delivery?.state ?? 'not_dispatched'] ?? 0) + 1;
-          return json({ id: campaign.id, state: campaign.state, counts }, 200, headers);
+          for (const delivery of deliveries) {
+            const state = delivery?.state ?? (campaign.state === 'cancelled' ? 'cancelled' : 'not_dispatched');
+            counts[state] = (counts[state] ?? 0) + 1;
+          }
+          headers.set('ETag', JSON.stringify(campaign._etag));
+          return json({ ...campaignSummary(campaign), counts }, 200, headers);
+        }
+        if (campaignMatch?.[1]) {
+          const id = campaignMatch[1];
+          const action = campaignMatch[2];
+          let campaign: Campaign | undefined;
+          if (!action && request.method === 'PATCH') campaign = await options.pipeline.campaigns.update(id, await input(request), version(request));
+          else if (!action && request.method === 'DELETE') {
+            await options.pipeline.campaigns.remove(id, version(request));
+            return new Response(null, { status: 204, headers });
+          } else if (request.method === 'POST') {
+            if (action === 'preview') {
+              const saved = await options.pipeline.campaigns.get(id);
+              return json(saved.state === 'draft' ? { ...await options.pipeline.campaigns.preview(saved.audience), snapshot: false }
+                : { count: saved.subscriptionIds.length, subscriptionIds: saved.subscriptionIds, audience: saved.audience, snapshot: true }, 200, headers);
+            }
+            if (action === 'cancel') campaign = await options.pipeline.campaigns.cancel(id);
+            else if (action === 'send') campaign = await options.pipeline.activate(id, request.headers.get('idempotency-key') ?? '');
+            else if (action === 'schedule') {
+              const data = await input(request);
+              if (data.scheduledAt === undefined) throw new AppError(400, 'Provide scheduledAt with an explicit timezone.');
+              campaign = await options.pipeline.activate(id, request.headers.get('idempotency-key') ?? '', data.scheduledAt);
+            }
+          }
+          if (campaign) {
+            headers.set('ETag', JSON.stringify(campaign._etag));
+            return json(campaignSummary(campaign), action === 'send' || action === 'schedule' ? 202 : 200, headers);
+          }
         }
       }
       const match = /^\/api\/subscriptions\/([a-f0-9]{64})(\/test)?$/.exec(path);

@@ -1,5 +1,7 @@
 # Phase 2 Durable Backend and Access
 
+This records the Phase 2 handoff. [Phase 3](phase-3.md) subsequently adds campaign management, scheduling, cancellation, and persistent recovery cursors. Its notes describe the current queued profile.
+
 Phase 2 implements durable subscriber storage, separate campaign and delivery queues, recovery, administrator token validation, and deployable Azure Functions handlers. The active demonstration runs locally. Azure deployment is intentionally off under the user's strict INR 100 monthly spending ceiling.
 
 ## Budget decision

@@ -19,19 +19,37 @@ export interface QueuePublisher {
   campaign(id: string): Promise<void>;
   delivery(id: string): Promise<void>;
 }
+/** Stable local keyset paging tolerates records leaving the active-state query. */
+export function documentPage<T extends Document>(records: Document[], kind: string, limit: number, cursor?: string, states?: string[]) {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100 || (cursor && !/^[\w-]{1,256}$/.test(cursor))) throw new AppError(400, 'Invalid page cursor or size.');
+  const rows = records.filter(row => row.kind === kind && (!cursor || row.id > cursor)
+    && (!states || states.includes((row as Document & { state: string }).state))).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  const items = rows.slice(0, limit) as T[];
+  return { items, ...(rows.length > limit ? { cursor: items.at(-1)!.id } : {}) };
+}
 export interface Campaign extends Document {
   kind: 'campaign';
   content: NotificationContent;
   subscriptionIds: string[];
   createdBy: string;
   createdAt: string;
-  state: 'pending' | 'queued' | 'sending';
+  updatedAt?: string;
+  name?: string;
+  audience?: Audience;
+  requestFingerprint?: string;
+  activation?: { key: string; scheduledAt?: string };
+  scheduledAt?: string;
+  dispatchIndex?: number;
+  dispatchLeaseId?: string;
+  dispatchLeaseUntil?: string;
+  state: 'draft' | 'scheduled' | 'pending' | 'queued' | 'dispatching' | 'sending' | 'completed' | 'completed_with_failures' | 'cancelled' | 'failed';
 }
+export type Audience = { type: 'all' } | { type: 'tags'; tags: string[] } | { type: 'selected'; subscriptionIds: string[] };
 export interface Delivery extends Document {
   kind: 'delivery';
   campaignId: string;
   subscriptionId: string;
-  state: 'pending' | 'queued' | 'processing' | 'accepted' | 'expired' | 'failed';
+  state: 'pending' | 'queued' | 'processing' | 'accepted' | 'expired' | 'failed' | 'cancelled';
   attempts: number;
   updatedAt: string;
   nextAttemptAt: string;
@@ -52,7 +70,7 @@ export class DurableSubscriptionStore implements SubscriptionStore {
       const page = await this.database.page<SubscriptionDocument>('subscription', 100 - records.length, cursor);
       records.push(...page.items); cursor = page.cursor;
     } while (cursor && records.length < 100);
-    return records;
+    return records.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
   }
   async get(id: string): Promise<StoredSubscription | undefined> {
     const record = await this.database.read<SubscriptionDocument>(id);
