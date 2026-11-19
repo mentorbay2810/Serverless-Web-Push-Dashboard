@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "local-baseline-v1",
+  "audiences": [10, 100, 1000],
+  "concurrencies": [1, 2, 4],
+  "conditions": ["fresh-process", "reused-process"],
+  "repetitions": 5,
+  "warmup": 1,
+  "seed": 42,
+  "mockDelayMs": 2,
+  "maxDurationMs": 60000,
+  "orderSeed": 20261118
+}

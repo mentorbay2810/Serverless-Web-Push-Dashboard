@@ -14,6 +14,8 @@ Phase 5 prepares `0.1.0-rc.1` as a local candidate with a built server, configur
 
 ## Scope and completion criteria
 
+Phase 7's local research tooling is implemented in `0.1.0-rc.3`: a seeded bounded scenario matrix, raw-evidence replay/verification, descriptive analysis, CSV exports and optional Matplotlib PNG/SVG figures. [Phase 7](phase-7.md) defines the protocol and limitations. Formal serverless/cold-start/cost comparison and actual browser verification remain pending under the strict cloud-off decision.
+
 Phase 6 adds automated security/failure validation, TAP/JUnit evidence, a source-bound local report and an always-on exploratory benchmark using the shared delivery core. Candidate `0.1.0-rc.2` keeps cloud deployment disabled. Real UI/cross-browser trials and the formal serverless comparison remain pending; see [Phase 6 methodology](phase-6.md).
 
 The first release supports one website and a small administrator group. It includes subscriber opt-in and opt-out, subscriber tags, basic segment filters, campaign creation and preview, immediate and scheduled sending, queue-based fan-out, bounded retries, and campaign analytics. The public subscriber page and administrator dashboard can share one static frontend deployment.
@@ -157,4 +159,4 @@ Repeat measurements and record run IDs, configuration, warm/cold conditions, att
 
 ## First implementation task
 
-The Foundation and local implementations of milestones 2–5 are prepared. Phase 6 automated validation and the bounded local baseline are implemented. Next, collect actual UI/cross-browser evidence and bounded Phase 7 local experiments using the documented methodology. Formal serverless/cost analysis, deployment automation and live Azure/Entra checks stay deferred under the strict INR 100 decision.
+The Foundation and local implementations of milestones 2–5, automated Phase 6 validation, and Phase 7's bounded local experiment/analysis tooling are prepared. Next, assemble review/submission material using measured local evidence and an explicit gap register. Actual UI/cross-browser trials, formal serverless/cost analysis, deployment automation and live Azure/Entra verification remain pending under the strict INR 100 decision.

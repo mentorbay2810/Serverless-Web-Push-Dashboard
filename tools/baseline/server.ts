@@ -10,6 +10,7 @@ try {
   let stopping = false;
   const stop = async () => { if (stopping) return; stopping = true; await host.stop(); if (process.connected) process.disconnect(); };
   process.on('message', message => { if ((message as { type?: string })?.type === 'stop') void stop(); });
+  process.once('disconnect', () => { void stop(); });
   process.on('SIGTERM', () => { void stop(); }); process.on('SIGINT', () => { void stop(); });
   if (process.send) process.send({ type: 'ready', origin: host.origin });
   else console.log(`Local research baseline: ${host.origin}. Credentials are supplied through its launcher.`);
